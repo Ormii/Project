@@ -31,4 +31,10 @@ public:
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent *ItemMesh;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class USphereComponent *DetectSphere;
+
+	UPROPERTY(VisibleAnywhere, Category = "UI", meta = (AllowPrivateAccess = "ture"))
+	class UWidgetComponent *InteractWidget;
 };

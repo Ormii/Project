@@ -3,6 +3,8 @@
 
 #include "Actor/BaseItem.h"
 #include "BaseItem.h"
+#include "Components/SphereComponent.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 ABaseItem::ABaseItem()
@@ -12,6 +14,14 @@ ABaseItem::ABaseItem()
 
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
 	RootComponent = ItemMesh;
+
+	DetectSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectSphere"));
+	DetectSphere->SetupAttachment(RootComponent);
+	DetectSphere->SetGenerateOverlapEvents(true);
+
+	InteractWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidget"));
+	InteractWidget->SetupAttachment(RootComponent);
+	InteractWidget->SetRelativeLocation(0.0f,0.0f,100)
 }
 
 // Called when the game starts or when spawned
