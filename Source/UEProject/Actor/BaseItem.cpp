@@ -21,7 +21,6 @@ ABaseItem::ABaseItem()
 
 	InteractWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidget"));
 	InteractWidget->SetupAttachment(RootComponent);
-	InteractWidget->SetRelativeLocation(0.0f,0.0f,100)
 }
 
 // Called when the game starts or when spawned
