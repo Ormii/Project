@@ -5,6 +5,9 @@
 #include "BaseItem.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Survivor.h"
 
 // Sets default values
 ABaseItem::ABaseItem()
@@ -18,6 +21,8 @@ ABaseItem::ABaseItem()
 	DetectSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectSphere"));
 	DetectSphere->SetupAttachment(RootComponent);
 	DetectSphere->SetGenerateOverlapEvents(true);
+	
+	DetectSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 
 	InteractWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidget"));
 	InteractWidget->SetupAttachment(RootComponent);
@@ -27,13 +32,25 @@ ABaseItem::ABaseItem()
 void ABaseItem::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+
+	Survivor = Cast<ASurvivor>(UGameplayStatics::GetPlayerCharacter(this, 0));
 }
 
 // Called every frame
 void ABaseItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	if(Survivor)
+	{
+		FVector WidgetLocation = InteractWidget->GetComponentLocation();
+		FVector SurvivorLocation = Survivor->GetCameraLocation();
+
+		FRotator newRotation = UKismetMathLibrary::FindLookAtRotation(WidgetLocation,SurvivorLocation);
+		InteractWidget->SetWorldRotation(newRotation);
+	}
 
 }
 

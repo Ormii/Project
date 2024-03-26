@@ -37,4 +37,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "UI", meta = (AllowPrivateAccess = "ture"))
 	class UWidgetComponent *InteractWidget;
+
+	class ASurvivor *Survivor;
 };
