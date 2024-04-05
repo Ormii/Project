@@ -27,6 +27,11 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	FVector GetCameraLocation(void);
+	APlayerController* GetSurvivorPlayerController(){return SurvivorPlayerController;}
+
+public:
+	UFUNCTION(BlueprintCallable)
+	class UInventoryComponent * GetInventoryComponent();
 
 private:
 	void MoveForward(float AxisValue);
@@ -34,6 +39,11 @@ private:
 	void LookUpRate(float AxisValue);
 	void LookRightRate(float AxisValue);
 
+	class IInteractable* FindInteractableActor();
+	void Interact();
+
+	UFUNCTION(BlueprintCallable)
+	void InventoryActivate();
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent *SpringArm;
@@ -41,8 +51,21 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent *Camera;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory Components", meta = (AllowPrivateAccess = "true"))
+	class UInventoryComponent *Inventory;
 
-	UPROPERTY(EditAnywhere, Category = "Controll", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "Control", meta = (AllowPrivateAccess = "true"))
 	float RotationRate = 30.0f;
 
+	UPROPERTY(EditAnywhere, Category = "Survivor Property", meta = (AllowPrivateAccess = "true"))
+	float SearchRange = 500.0f;
+
+	UPROPERTY()
+	UClass* InventoryWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	class UUserWidget *InventoryWidget;
+
+	APlayerController *SurvivorPlayerController;
+	bool bUseInventory = false;
 };

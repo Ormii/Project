@@ -14,4 +14,7 @@ class UEPROJECT_API ABasePlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+
+public:
+	void SetPlayerEnableState(bool bPlayerEnabled);
 };

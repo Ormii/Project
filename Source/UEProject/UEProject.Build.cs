@@ -16,7 +16,9 @@ public class UEProject : ModuleRules
             "UEProject/Interface",
 			"UEProject/Actor",
 			"UEProject/GameMode",
-			"UEProject/PlayerController",			
+			"UEProject/PlayerController",
+			"UEProject/Compo",
+			"UEProject/Struct",
         });
 	}
 }

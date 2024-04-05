@@ -7,6 +7,7 @@
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "../Compo/InventoryComponent.h"
 #include "Survivor.h"
 
 // Sets default values
@@ -16,7 +17,7 @@ ABaseItem::ABaseItem()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
-	RootComponent = ItemMesh;
+	ItemMesh->SetupAttachment(RootComponent);
 
 	DetectSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectSphere"));
 	DetectSphere->SetupAttachment(RootComponent);
@@ -26,6 +27,13 @@ ABaseItem::ABaseItem()
 
 	InteractWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidget"));
 	InteractWidget->SetupAttachment(RootComponent);
+
+	FString OutlineMaterialName = "/Game/Materials/M_Outline.M_Outline";
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> OutlineMaterialAsset(*OutlineMaterialName);
+	if(OutlineMaterialAsset.Succeeded())
+	{
+		OutlineMaterial = OutlineMaterialAsset.Object;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -41,21 +49,52 @@ void ABaseItem::BeginPlay()
 void ABaseItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	IsVisibleRange = false;
+	IsInteractRange = false;
 
-
+	if(InteractWidget == nullptr)
+		return;
 	if(Survivor)
 	{
+		FVector ActorLocation = GetActorLocation();
 		FVector WidgetLocation = InteractWidget->GetComponentLocation();
-		FVector SurvivorLocation = Survivor->GetCameraLocation();
-
-		FRotator newRotation = UKismetMathLibrary::FindLookAtRotation(WidgetLocation,SurvivorLocation);
+	
+		FRotator newRotation = UKismetMathLibrary::FindLookAtRotation(WidgetLocation,Survivor->GetCameraLocation());
 		InteractWidget->SetWorldRotation(newRotation);
+
+		float Dist = FVector::Dist(Survivor->GetActorLocation(), ActorLocation);
+		if(Dist <= IsInVisibleRange)
+			IsVisibleRange = true;
+
+		if(Dist <= IsInInteractRange)
+			IsInteractRange = true;
+		
+	}
+	
+	if(IsVisibleRange)
+	{
+		ItemMesh->SetOverlayMaterial(OutlineMaterial);
+	}
+	else
+	{
+		ItemMesh->SetOverlayMaterial(nullptr);
 	}
 
+	if(IsInteractRange)
+	{
+		InteractWidget->SetVisibility(true);
+	}
+	else
+	{
+		InteractWidget->SetVisibility(false);
+	}
 }
 
 bool ABaseItem::Interact(AActor *OtherActor)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Interact %s"), *GetName());
+
     return true;
 }
 

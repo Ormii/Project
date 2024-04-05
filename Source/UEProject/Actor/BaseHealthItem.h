@@ -13,5 +13,10 @@ UCLASS()
 class UEPROJECT_API ABaseHealthItem : public ABaseItem
 {
 	GENERATED_BODY()
+
+public:
+	virtual bool Interact(AActor* OtherActor) override;
+
+	virtual bool UseItem();
 	
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "../Interface/Interactable.h"
+#include "../Struct/ItemData.h"
 #include "BaseItem.generated.h"
 
 UCLASS()
@@ -28,6 +29,23 @@ public:
 
 	virtual bool UseItem();
 
+	bool GetIsVisibleRange(){return IsVisibleRange;}
+	bool GetIsInteractRange(){return IsInteractRange;}
+
+	FItemData GetItemData(){return ItemData;}
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "Item Property", meta = (AllowPrivateAccess = "true"))
+	float IsInVisibleRange = 500.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Item Property", meta = (AllowPrivateAccess = "true"))
+	float IsInInteractRange = 150.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Item Data", meta = (AllowPrivateAccess = "true"))
+	FItemData ItemData;
+
+	class ASurvivor *Survivor;
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent *ItemMesh;
@@ -35,8 +53,15 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent *DetectSphere;
 
-	UPROPERTY(VisibleAnywhere, Category = "UI", meta = (AllowPrivateAccess = "ture"))
+	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent *InteractWidget;
 
-	class ASurvivor *Survivor;
+
+	UPROPERTY(VisibleInstanceOnly)
+	UMaterialInterface* OutlineMaterial = nullptr;
+	
+
+	bool IsInteractRange = false;
+	bool IsVisibleRange = false;
+	
 };
