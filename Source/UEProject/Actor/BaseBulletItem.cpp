@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include "BaseBulletItem.h"
 #include "Actor/Survivor.h"
 #include "Compo/InventoryComponent.h"
-#include "BaseBulletItem.h"
 
 bool ABaseBulletItem::Interact(AActor *OtherActor)
 {

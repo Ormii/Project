@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "BaseAttackItem.h"
 #include "Actor/Survivor.h"
 #include "Compo/InventoryComponent.h"
-#include "BaseAttackItem.h"
 
 bool ABaseAttackItem::Interact(AActor *OtherActor)
 {

@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include "BaseKeyItem.h"
 #include "Actor/Survivor.h"
 #include "Compo/InventoryComponent.h"
-#include "BaseKeyItem.h"
 
 bool ABaseKeyItem::Interact(AActor *OtherActor)
 {

@@ -1,7 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "Actor/BasePuzzle.h"
 #include "BasePuzzle.h"
 
 // Sets default values

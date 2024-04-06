@@ -1,13 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Actor/Survivor.h"
 #include "Survivor.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Controller.h"
 #include "Camera/CameraComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "DrawDebugHelpers.h"
+#include "InputActionValue.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "../PlayerController/BasePlayerController.h"
 #include "../Interface/Interactable.h"
 #include "../Compo/InventoryComponent.h"
@@ -30,6 +34,7 @@ ASurvivor::ASurvivor()
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 
 	SpringArm->bUsePawnControlRotation = true;
+
 	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetFinder(TEXT("/Game/Blueprints/Widget/WBP_TabUMG"));
 	if(InventoryWidgetFinder.Class != nullptr)
 	{
@@ -43,6 +48,12 @@ void ASurvivor::BeginPlay()
 	Super::BeginPlay();
 
 	SurvivorPlayerController = Cast<ABasePlayerController>(GetController());
+
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController())) {
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
+			Subsystem->AddMappingContext(InputMappingContext, 0);
+		}
+	}
 
 	if(SurvivorPlayerController)
 	{
@@ -74,12 +85,15 @@ void ASurvivor::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ASurvivor::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ASurvivor::MoveRight);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &ASurvivor::LookUpRate);
-	PlayerInputComponent->BindAxis("LookRightRate", this, &ASurvivor::LookRightRate);
-
-	PlayerInputComponent->BindAction("Interact", EInputEvent::IE_Pressed, this, &ASurvivor::Interact);
+	if(UEnhancedInputComponent *EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ASurvivor::Move);
+		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ASurvivor::Look);
+		EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ASurvivor::Interact);
+		EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ASurvivor::CrouchActivate);
+		EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ASurvivor::UnCrouchActivate);
+		EnhancedInputComponent->BindAction(TabInputAction, ETriggerEvent::Started, this, &ASurvivor::InventoryActivate);
+	}
 }
 
 FVector ASurvivor::GetCameraLocation(void)
@@ -92,28 +106,42 @@ UInventoryComponent *ASurvivor::GetInventoryComponent()
     return Inventory;
 }
 
-void ASurvivor::MoveForward(float AxisValue)
+
+void ASurvivor::Move(const FInputActionValue &value)
 {
-	AddMovementInput(GetActorForwardVector(), AxisValue);
+	const FVector2D MoveVector2D = value.Get<FVector2D>();
+	AddMovementInput(GetActorForwardVector(), MoveVector2D.Y);
+	AddMovementInput(GetActorRightVector(), MoveVector2D.X);
 }
 
-void ASurvivor::MoveRight(float AxisValue)
+void ASurvivor::Look(const FInputActionValue &value)
 {
-	AddMovementInput(GetActorRightVector(), AxisValue);
+	const FVector2D LookVector2D = value.Get<FVector2D>();
+	AddControllerPitchInput(LookVector2D.Y * RotationRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(LookVector2D.X * RotationRate * GetWorld()->GetDeltaSeconds());
 }
 
-void ASurvivor::LookUpRate(float AxisValue)
+void ASurvivor::CrouchActivate()
 {
-	AddControllerPitchInput(AxisValue * RotationRate * GetWorld()->GetDeltaSeconds());
+	IsCrouch = true;
+	UE_LOG(LogTemp, Warning, TEXT("Crouch!"));
+	GetCharacterMovement()->Crouch();
+	AnimationCrouchCamera();
 }
 
-void ASurvivor::LookRightRate(float AxisValue)
+void ASurvivor::UnCrouchActivate()
 {
-	AddControllerYawInput(AxisValue * RotationRate * GetWorld()->GetDeltaSeconds());
+	IsCrouch = false;
+	UE_LOG(LogTemp, Warning, TEXT("UnCrouch!"));
+	GetCharacterMovement()->UnCrouch();
+	AnimationUnCrouchCamera();
 }
 
 IInteractable *ASurvivor::FindInteractableActor()
 {
+	if(Camera == nullptr)
+		return nullptr;
+
 	IInteractable *InteractableActor = nullptr;
 	FVector CameraLocation = Camera->GetComponentLocation();
 	FRotator CameraRotation = Camera->GetComponentRotation();
@@ -174,18 +202,26 @@ void ASurvivor::InventoryActivate()
 	if(InventoryWidget == nullptr)
 		return;
 
-	bUseInventory = !bUseInventory;
-	
-	if(bUseInventory)
+	UseInventory = !UseInventory;
+
+	if(UseInventory)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Activate :%d"), UseInventory);	
 		InventoryWidget->SetVisibility(ESlateVisibility::Visible);
-		DisableInput(SurvivorPlayerController);
+		GetController()->SetIgnoreLookInput(true);
+		GetCharacterMovement()->DisableMovement();
+		
 		SurvivorPlayerController->bShowMouseCursor = true;
+		
 	}
 	else
 	{
+		UseInventory = false;
+		UE_LOG(LogTemp, Warning, TEXT("Activate :%d"), UseInventory);	
 		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-		EnableInput(SurvivorPlayerController);
+		GetController()->SetIgnoreLookInput(false);
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
 		SurvivorPlayerController->bShowMouseCursor = false;
 	}
 }

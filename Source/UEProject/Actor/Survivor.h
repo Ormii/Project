@@ -4,7 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InputActionValue.h"
 #include "Survivor.generated.h"
+
+
+class UInputMappingContext;
+class UInputAction;
 
 UCLASS()
 class UEPROJECT_API ASurvivor : public ACharacter
@@ -34,25 +39,52 @@ public:
 	class UInventoryComponent * GetInventoryComponent();
 
 private:
-	void MoveForward(float AxisValue);
-	void MoveRight(float AxisValue);
-	void LookUpRate(float AxisValue);
-	void LookRightRate(float AxisValue);
+	void Move(const FInputActionValue& value);
+	void Look(const FInputActionValue& value);
+	void CrouchActivate();
+	void UnCrouchActivate();
 
 	class IInteractable* FindInteractableActor();
 	void Interact();
 
 	UFUNCTION(BlueprintCallable)
 	void InventoryActivate();
+
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void AnimationCrouchCamera();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void AnimationUnCrouchCamera();
+	
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent *SpringArm;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent *Camera;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UInventoryComponent *Inventory;
+
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputMappingContext *InputMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* MoveInputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* LookInputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* CrouchInputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* InteractInputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* TabInputAction;
 
 	UPROPERTY(EditAnywhere, Category = "Control", meta = (AllowPrivateAccess = "true"))
 	float RotationRate = 30.0f;
@@ -66,6 +98,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	class UUserWidget *InventoryWidget;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess= "true"))
+	bool UseInventory = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
+	bool IsCrouch = false;
+
+
 	APlayerController *SurvivorPlayerController;
-	bool bUseInventory = false;
 };

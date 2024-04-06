@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Actor/BaseItem.h"
+#include "CoreMinimal.h"
 #include "BaseAttackItem.generated.h"
 
 /**
