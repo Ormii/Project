@@ -9,7 +9,7 @@
 #include "InventoryComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UEPROJECT_API UInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -27,11 +27,17 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	bool CheckEmptySlot(int32& outIndex);
+
+	UFUNCTION(BlueprintCallable)
+	bool GetItemDataAtIndex(FInventoryItemData& ItemData, int32 Index);
 	
+	UFUNCTION(BlueprintCallable)
+	bool UpdateInventorySlots(int32 Index);
+
 	template <class T>
 	void AddItem(T *Item, int32 Amount);
 
-private:
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TArray<FInventoryItemData> InventorySlots;
 
@@ -45,10 +51,14 @@ inline void UInventoryComponent::AddItem(T *Item, int32 Amount)
 	if(Item == nullptr)
 		return;
 
+	if(Item->IsA(ABaseItem::StaticClass()) == false)
+		return;
+
 	ABaseItem * newBaseItem = NewObject<T>(Item, T::StaticClass(), *Item->GetItemData().Name);
 	if(newBaseItem == nullptr)
 		return;
 
+	newBaseItem->SetItemData(((ABaseItem*)Item)->GetItemData());
 	int32 MaxStackAmount = Item->GetItemData().MaxStackAmount;
 
 	int32 EmptyIndex = 0;
@@ -56,6 +66,8 @@ inline void UInventoryComponent::AddItem(T *Item, int32 Amount)
 	bool IsEmptySlotExist = CheckEmptySlot(EmptyIndex);
 	if(IsEmptySlotExist == true)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Find Empty Slot"));
 		InventorySlots[EmptyIndex] = FInventoryItemData{newBaseItem,Amount};
+		UpdateInventorySlots(EmptyIndex);
 	}
 }

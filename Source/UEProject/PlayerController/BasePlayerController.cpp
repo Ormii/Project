@@ -2,7 +2,20 @@
 
 
 #include "PlayerController/BasePlayerController.h"
+#include "BaseTabUMGWidget.h"
 #include "BasePlayerController.h"
+
+void ABasePlayerController::BeginPlay()
+{
+    Super::BeginPlay();
+    
+    TabWidget = Cast<UBaseTabUMGWidget>(CreateWidget(this, TabWidgetClass));
+    if(TabWidget)
+    {
+        TabWidget->AddToViewport();
+        TabWidget->SetVisibility(ESlateVisibility::Hidden);
+    }
+}
 
 void ABasePlayerController::SetPlayerEnableState(bool bPlayerEnabled)
 {

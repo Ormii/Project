@@ -8,6 +8,14 @@
 #include "Survivor.generated.h"
 
 
+UENUM(BlueprintType)
+enum class EEquipedType : uint8
+{
+	EQUIPED_TYPE_UNARMED UMETA(DisplayName = "Unarmed"),
+	EQUIPED_TYPE_KNIFE UMETA(DisplayName = "Knife"),
+	EQUIPED_TYPE_PISTOL UMETA(DisplayName = "Pistol"),
+};
+
 class UInputMappingContext;
 class UInputAction;
 
@@ -92,17 +100,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Survivor Property", meta = (AllowPrivateAccess = "true"))
 	float SearchRange = 500.0f;
 
-	UPROPERTY()
-	UClass* InventoryWidgetClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
-	class UUserWidget *InventoryWidget;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess= "true"))
-	bool UseInventory = false;
+	bool UseTab = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
 	bool IsCrouch = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
+	EEquipedType EquipedType;
 
 
 	APlayerController *SurvivorPlayerController;

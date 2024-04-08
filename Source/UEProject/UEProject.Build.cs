@@ -19,6 +19,7 @@ public class UEProject : ModuleRules
 			"UEProject/PlayerController",
 			"UEProject/Compo",
 			"UEProject/Struct",
+			"UEProject/UI",
         });
 	}
 }

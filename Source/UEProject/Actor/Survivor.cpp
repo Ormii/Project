@@ -7,7 +7,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "Camera/CameraComponent.h"
-#include "Blueprint/UserWidget.h"
 #include "DrawDebugHelpers.h"
 #include "InputActionValue.h"
 #include "EnhancedInputComponent.h"
@@ -15,6 +14,7 @@
 #include "../PlayerController/BasePlayerController.h"
 #include "../Interface/Interactable.h"
 #include "../Compo/InventoryComponent.h"
+#include "BaseTabUMGWidget.h"
 #include "BaseItem.h"
 #include "BaseDoor.h"
 #include "BasePuzzle.h"
@@ -34,12 +34,6 @@ ASurvivor::ASurvivor()
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 
 	SpringArm->bUsePawnControlRotation = true;
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetFinder(TEXT("/Game/Blueprints/Widget/WBP_TabUMG"));
-	if(InventoryWidgetFinder.Class != nullptr)
-	{
-		InventoryWidgetClass = InventoryWidgetFinder.Class;
-	}
 }
 
 // Called when the game starts or when spawned
@@ -59,18 +53,6 @@ void ASurvivor::BeginPlay()
 	{
 		SurvivorPlayerController->PlayerCameraManager->ViewPitchMin = -45;
 		SurvivorPlayerController->PlayerCameraManager->ViewPitchMax = 45;
-	}
-	
-	if(InventoryWidgetClass)
-	{
-		if(!InventoryWidget)
-			InventoryWidget = CreateWidget(GetWorld(), InventoryWidgetClass, FName("Inventory Widget"));
-		
-		if(InventoryWidget == nullptr)
-			return;
-
-		InventoryWidget->AddToViewport();
-		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
@@ -199,15 +181,20 @@ void ASurvivor::Interact()
 
 void ASurvivor::InventoryActivate()
 {
-	if(InventoryWidget == nullptr)
+	ABasePlayerController *PlayerController = Cast<ABasePlayerController>(GetController());
+	if(PlayerController == nullptr)
 		return;
 
-	UseInventory = !UseInventory;
+	UBaseTabUMGWidget* TabWidget = PlayerController->GetTabWidget();
+	if(TabWidget == nullptr)
+		return;
 
-	if(UseInventory)
+	UseTab = !UseTab;
+
+	if(UseTab)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Activate :%d"), UseInventory);	
-		InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+		UE_LOG(LogTemp, Warning, TEXT("Activate :%d"), UseTab);	
+		TabWidget->SetVisibility(ESlateVisibility::Visible);
 		GetController()->SetIgnoreLookInput(true);
 		GetCharacterMovement()->DisableMovement();
 		
@@ -216,9 +203,8 @@ void ASurvivor::InventoryActivate()
 	}
 	else
 	{
-		UseInventory = false;
-		UE_LOG(LogTemp, Warning, TEXT("Activate :%d"), UseInventory);	
-		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+		UE_LOG(LogTemp, Warning, TEXT("Activate :%d"), UseTab);	
+		TabWidget->SetVisibility(ESlateVisibility::Hidden);
 		GetController()->SetIgnoreLookInput(false);
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 

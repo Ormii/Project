@@ -32,6 +32,10 @@ public:
 	bool GetIsVisibleRange(){return IsVisibleRange;}
 	bool GetIsInteractRange(){return IsInteractRange;}
 
+
+	void SetItemData(FItemData aItemData) {ItemData = aItemData;}
+	
+	UFUNCTION(BlueprintPure)
 	FItemData GetItemData(){return ItemData;}
 
 protected:
@@ -41,8 +45,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Item Property", meta = (AllowPrivateAccess = "true"))
 	float IsInInteractRange = 150.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Item Data", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "Item Property", meta = (AllowPrivateAccess = "true"))
 	FItemData ItemData;
+
+	UPROPERTY(EditAnywhere, Category = "Item Property", meta = (AllowPrivateAccess = "true"))
+	int32 Amount;
 
 	class ASurvivor *Survivor;
 
