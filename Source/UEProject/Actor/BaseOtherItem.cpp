@@ -10,10 +10,21 @@ bool ABaseOtherItem::Interact(AActor *OtherActor)
     Super::Interact(OtherActor);
     if(Survivor)
 	{
-		Survivor->GetInventoryComponent()->AddItem(this, Amount);
-	}
+        int32 Remain = 0;
+		bool IsSuccess = Survivor->GetInventoryComponent()->AddItem(this, Amount, Remain);
+        if(IsSuccess)
+        {
+            if(Remain == 0)
+            {
+                Destroy();
+            }
+            else
+            {
+                SetAmount(Remain);
+            }
+        }
+    }
 
-	Destroy();
     return false;
 }
 

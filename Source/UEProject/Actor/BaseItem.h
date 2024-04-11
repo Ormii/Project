@@ -38,6 +38,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	FItemData GetItemData(){return ItemData;}
 
+	void 	SetAmount(int32 aAmount){ this->Amount = aAmount;}
+
+	UFUNCTION(BlueprintPure)
+	int32	GetAmount(){return Amount;}
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "Item Property", meta = (AllowPrivateAccess = "true"))
 	float IsInVisibleRange = 500.0f;

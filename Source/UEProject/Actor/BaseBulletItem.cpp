@@ -4,15 +4,30 @@
 #include "Actor/Survivor.h"
 #include "Compo/InventoryComponent.h"
 
+ABaseBulletItem::ABaseBulletItem()
+{
+    ItemData.MaxStackAmount = 300;
+}
+
 bool ABaseBulletItem::Interact(AActor *OtherActor)
 {
     Super::Interact(OtherActor);
     if(Survivor)
 	{
-		Survivor->GetInventoryComponent()->AddItem(this, Amount);
+        int32 Remain = 0;
+		bool IsSuccess = Survivor->GetInventoryComponent()->AddItem(this, Amount, Remain);
+        if(IsSuccess)
+        {
+            if(Remain == 0)
+            {
+                Destroy();
+            }
+            else
+            {
+                SetAmount(Remain);
+            }
+        }
 	}
-
-	Destroy();
     return false;
 }
 

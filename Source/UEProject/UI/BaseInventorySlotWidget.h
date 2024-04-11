@@ -16,6 +16,9 @@ class UEPROJECT_API UBaseInventorySlotWidget : public UUserWidget
 	
 public:
 	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent)
+	void InitInventorySlot(class UBaseInventoryWidget* InventoryWidget);
+
+	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent)
 	void UpdateSlot();
 
 protected:
@@ -26,8 +29,17 @@ protected:
 	class UImage *SlotImageRef;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	class UTextBlock *AmountTextRef;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	int32 IndexRef;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	int32 AmountRef;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	class UBaseInventoryWidget *InventoryWidgetRef;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	class ASurvivor *SurvivorRef;
 };

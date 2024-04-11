@@ -58,6 +58,31 @@ bool UInventoryComponent::CheckEmptySlot(int32& outIndex)
 	return false;
 }
 
+bool UInventoryComponent::CheckForFreeSlot(ABaseItem * Item, int32& Index)
+{
+	if(Item == nullptr)
+		return false;
+
+	int32 i = 0;
+	for(i = 0; i < InventorySlots.Num(); i++)
+	{
+		FInventoryItemData InventoryItemData = InventorySlots[i];
+		if(InventoryItemData.Item == nullptr)
+			continue;
+
+		if(Item->GetItemData().ItemType != InventoryItemData.Item->GetItemData().ItemType)
+			continue;
+
+		if(InventoryItemData.Amount < Item->GetItemData().MaxStackAmount)
+		{
+			Index = i;
+			return true;
+		}
+	}	
+
+	return false;
+}
+
 bool UInventoryComponent::GetItemDataAtIndex(FInventoryItemData &ItemData, int32 Index)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Inventory Num : %d"), InventorySlots.Num());

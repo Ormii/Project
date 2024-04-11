@@ -124,6 +124,9 @@ IInteractable *ASurvivor::FindInteractableActor()
 	if(Camera == nullptr)
 		return nullptr;
 
+	if(UseTab == true)
+		return nullptr;
+
 	IInteractable *InteractableActor = nullptr;
 	FVector CameraLocation = Camera->GetComponentLocation();
 	FRotator CameraRotation = Camera->GetComponentRotation();

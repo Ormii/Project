@@ -27,6 +27,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	bool CheckEmptySlot(int32& outIndex);
+	bool CheckForFreeSlot(ABaseItem *Item, int32& Index);
 
 	UFUNCTION(BlueprintCallable)
 	bool GetItemDataAtIndex(FInventoryItemData& ItemData, int32 Index);
@@ -35,39 +36,78 @@ public:
 	bool UpdateInventorySlots(int32 Index);
 
 	template <class T>
-	void AddItem(T *Item, int32 Amount);
+	bool AddItem(T *Item, int32 Amount, int32& Remain);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TArray<FInventoryItemData> InventorySlots;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta= (AllowPrivateAccess = "true"))
-	int32 MaxInventoryCapacity = 8;		
+	int32 MaxInventoryCapacity = 8;
 };
 
 template <class T>
-inline void UInventoryComponent::AddItem(T *Item, int32 Amount)
+inline bool UInventoryComponent::AddItem(T *Item, int32 Amount, int32& Remain)
 {
 	if(Item == nullptr)
-		return;
+		return false;
 
 	if(Item->IsA(ABaseItem::StaticClass()) == false)
-		return;
+		return false;
 
 	ABaseItem * newBaseItem = NewObject<T>(Item, T::StaticClass(), *Item->GetItemData().Name);
 	if(newBaseItem == nullptr)
-		return;
+		return false;
 
 	newBaseItem->SetItemData(((ABaseItem*)Item)->GetItemData());
 	int32 MaxStackAmount = Item->GetItemData().MaxStackAmount;
 
-	int32 EmptyIndex = 0;
-	
-	bool IsEmptySlotExist = CheckEmptySlot(EmptyIndex);
-	if(IsEmptySlotExist == true)
+	bool result = false;
+	while(Amount > 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Find Empty Slot"));
-		InventorySlots[EmptyIndex] = FInventoryItemData{newBaseItem,Amount};
-		UpdateInventorySlots(EmptyIndex);
+		int32 Index = 0;
+		if(CheckForFreeSlot(Item, Index) == true)
+		{
+			ABaseItem *BaseItem = dynamic_cast<ABaseItem*>(Item);
+			InventorySlots[Index].Amount += Amount;
+			UpdateInventorySlots(Index);
+			Amount = (InventorySlots[Index].Amount - MaxStackAmount);
+
+			if(InventorySlots[Index].Amount > MaxStackAmount)
+				InventorySlots[Index].Amount = MaxStackAmount;
+
+			InventorySlots[Index].Item->SetAmount(InventorySlots[Index].Amount);
+
+			if(Amount < 0)
+				Amount = 0;
+			
+			Remain = Amount;
+			result = true;
+			continue;
+		}
+		else
+		{
+			int32 EmptyIndex = 0;			
+			bool IsEmptySlotExist = CheckEmptySlot(EmptyIndex);
+			if(IsEmptySlotExist == true)
+			{
+				int32 newAmount = (Amount - MaxStackAmount < 0) ? Amount : MaxStackAmount; 
+				newBaseItem->SetAmount(newAmount);
+				InventorySlots[EmptyIndex] = FInventoryItemData{newBaseItem,newAmount};
+				UpdateInventorySlots(EmptyIndex);
+				Amount -= newAmount;
+				if(Amount < 0)
+					Amount = 0;
+				
+				Remain = Amount;
+				result = true;
+				continue;
+			}
+		}
+
+		break;
 	}
+
+	return result;
 }
+

@@ -21,4 +21,7 @@ public:
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	UBaseInventoryWidget* InventoryWidgetRef;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	class UButton *CloseDropDownButtonRef;
 };

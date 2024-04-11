@@ -15,6 +15,8 @@ class UEPROJECT_API ABaseKeyItem : public ABaseItem
 	GENERATED_BODY()
 	
 public:
+	ABaseKeyItem();
+public:
 	virtual bool Interact(AActor* OtherActor) override;
 
 	virtual bool UseItem();
