@@ -5,6 +5,11 @@
 #include "Compo/InventoryComponent.h"
 #include "BaseOtherItem.h"
 
+void ABaseOtherItem::BeginPlay()
+{
+    Super::BeginPlay();
+}
+
 bool ABaseOtherItem::Interact(AActor *OtherActor)
 {
     Super::Interact(OtherActor);
@@ -31,5 +36,5 @@ bool ABaseOtherItem::Interact(AActor *OtherActor)
 bool ABaseOtherItem::UseItem()
 {
     Super::UseItem();
-    return false;
+    return true;
 }

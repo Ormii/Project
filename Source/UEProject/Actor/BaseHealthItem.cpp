@@ -6,7 +6,17 @@
 
 ABaseHealthItem::ABaseHealthItem()
 {
+    ItemData.ItemType = EItemType::EITEM_TYPE_DEFAULT_HEALTHKIT;
+    ItemData.Name = "Health Kit";
     ItemData.MaxStackAmount = 10;
+    ItemData.CanbeUse = true;
+    ItemData.CanbeEquiped = false;
+}
+
+void ABaseHealthItem::BeginPlay()
+{
+    Super::BeginPlay();
+    
 }
 
 bool ABaseHealthItem::Interact(AActor *OtherActor)
@@ -35,5 +45,6 @@ bool ABaseHealthItem::Interact(AActor *OtherActor)
 bool ABaseHealthItem::UseItem()
 {
     Super::UseItem();
-    return false;
+    
+    return true;
 }

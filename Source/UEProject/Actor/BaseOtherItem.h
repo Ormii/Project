@@ -13,6 +13,11 @@ UCLASS()
 class UEPROJECT_API ABaseOtherItem : public ABaseItem
 {
 	GENERATED_BODY()
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	
 public:
 	virtual bool Interact(AActor* OtherActor) override;
 

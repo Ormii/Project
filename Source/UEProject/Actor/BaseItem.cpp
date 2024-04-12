@@ -16,8 +16,8 @@ ABaseItem::ABaseItem()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
-	ItemMesh->SetupAttachment(RootComponent);
-
+	RootComponent = ItemMesh;
+	
 	DetectSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectSphere"));
 	DetectSphere->SetupAttachment(RootComponent);
 	DetectSphere->SetGenerateOverlapEvents(true);
@@ -27,12 +27,15 @@ ABaseItem::ABaseItem()
 	InteractWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidget"));
 	InteractWidget->SetupAttachment(RootComponent);
 
+/*
 	FString OutlineMaterialName = "/Game/Materials/M_Outline.M_Outline";
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> OutlineMaterialAsset(*OutlineMaterialName);
 	if(OutlineMaterialAsset.Succeeded())
 	{
 		OutlineMaterial = OutlineMaterialAsset.Object;
 	}
+*/
+
 }
 
 // Called when the game starts or when spawned
@@ -40,8 +43,7 @@ void ABaseItem::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	Survivor = Cast<ASurvivor>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	Survivor = Cast<ASurvivor>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
 // Called every frame
@@ -54,6 +56,7 @@ void ABaseItem::Tick(float DeltaTime)
 
 	if(InteractWidget == nullptr)
 		return;
+
 	if(Survivor)
 	{
 		FVector ActorLocation = GetActorLocation();
@@ -99,5 +102,18 @@ bool ABaseItem::Interact(AActor *OtherActor)
 
 bool ABaseItem::UseItem()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Use : %s"), *ItemData.Name);
     return true;
+}
+
+bool ABaseItem::EquipItem()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Equiped : %s"), *ItemData.Name);
+    return false;
+}
+
+bool ABaseItem::UnEquipItem()
+{
+	UE_LOG(LogTemp, Warning, TEXT("UnEquiped : %s"), *ItemData.Name);
+    return false;
 }

@@ -6,7 +6,17 @@
 
 ABaseKeyItem::ABaseKeyItem()
 {
+    ItemData.ItemType = EItemType::EITEM_TYPE_DEFAULT_KEY;
+    ItemData.Name = "Key";
     ItemData.MaxStackAmount = 1;
+    ItemData.CanbeUse = false;
+    ItemData.CanbeEquiped = false;
+}
+
+void ABaseKeyItem::BeginPlay()
+{
+    Super::BeginPlay();
+    
 }
 
 bool ABaseKeyItem::Interact(AActor *OtherActor)
@@ -34,5 +44,5 @@ bool ABaseKeyItem::Interact(AActor *OtherActor)
 bool ABaseKeyItem::UseItem()
 {
     Super::UseItem();
-    return false;
+    return true;
 }

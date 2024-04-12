@@ -35,4 +35,13 @@ struct UEPROJECT_API FItemData
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 MaxStackAmount = 0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool CanbeUse = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool CanbeEquiped = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool CanbeUnEquip = false;
 };

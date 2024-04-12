@@ -85,8 +85,6 @@ bool UInventoryComponent::CheckForFreeSlot(ABaseItem * Item, int32& Index)
 
 bool UInventoryComponent::GetItemDataAtIndex(FInventoryItemData &ItemData, int32 Index)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Inventory Num : %d"), InventorySlots.Num());
-
 	if(Index < 0 || InventorySlots.Num() <= Index)
 		return false;
 
@@ -97,33 +95,104 @@ bool UInventoryComponent::GetItemDataAtIndex(FInventoryItemData &ItemData, int32
 
 bool UInventoryComponent::UpdateInventorySlots(int32 Index)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Index : %d"), Index);
-	UE_LOG(LogTemp, Warning, TEXT("InventorySlots Num : %d"), InventorySlots.Num());
 	if(Index < 0 || Index >= InventorySlots.Num())
 		return false;
-	UE_LOG(LogTemp, Warning, TEXT("1"));
 
 	ABasePlayerController *PlayerController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if(PlayerController == nullptr)
 		return false;
-	UE_LOG(LogTemp, Warning, TEXT("2"));	
 
 	UBaseTabUMGWidget *TabWidget = PlayerController->GetTabWidget();
 	if(TabWidget == nullptr)
 		return false;
-	UE_LOG(LogTemp, Warning, TEXT("3"));
+
 	UBaseInventoryWidget *InventoryWidget = TabWidget->GetInventoryWidget();
 	if(InventoryWidget == nullptr)
 		return false;
-	UE_LOG(LogTemp, Warning, TEXT("4"));
+
 	TArray<UBaseInventorySlotWidget*> SlotsArray = InventoryWidget->GetSlotsArray();
 	
 	if(Index < 0 || Index >= SlotsArray.Num())
 		return false;
 
 	UBaseInventorySlotWidget *SlotWidget = SlotsArray[Index];
-	UE_LOG(LogTemp, Warning, TEXT("Update Slot Start"));
 	SlotWidget->UpdateSlot();
 
 	return true;
+}
+
+bool UInventoryComponent::UseItem(int32 Index)
+{
+	FInventoryItemData InventoryItemData{0,};
+	if(GetItemDataAtIndex(InventoryItemData,Index) == true)
+	{
+		if(InventoryItemData.Item != nullptr)
+		{
+			if(InventoryItemData.Item->UseItem() == true)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Use Item"));
+				RemoveItem(Index);
+			}
+			UpdateInventorySlots(Index);
+			return true;
+		}
+	}
+
+    return false;
+}
+
+bool UInventoryComponent::EquipItem(int32 Index)
+{
+	FInventoryItemData InventoryItemData{0,};
+	if(GetItemDataAtIndex(InventoryItemData,Index) == true)
+	{
+		if(InventoryItemData.Item != nullptr)
+		{
+			InventoryItemData.Item->EquipItem();
+			UpdateInventorySlots(Index);
+			return true;
+		}
+	}
+    return false;
+}
+
+bool UInventoryComponent::UnEquipItem(int32 Index)
+{
+	FInventoryItemData InventoryItemData{0,};
+	if(GetItemDataAtIndex(InventoryItemData,Index) == true)
+	{
+		if(InventoryItemData.Item != nullptr)
+		{
+			InventoryItemData.Item->UnEquipItem();
+			UpdateInventorySlots(Index);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UInventoryComponent::RemoveItem(int32 Index)
+{
+	FInventoryItemData InventoryItemData{0,};
+	if(GetItemDataAtIndex(InventoryItemData,Index) == true)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Remove Item Start"));
+		if(InventorySlots[Index].Item == nullptr)
+			return false;
+
+		if(InventorySlots[Index].Amount > 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Remove Item before Amount : %d"), InventorySlots[Index].Amount);
+			InventorySlots[Index].Amount -= 1;
+			UE_LOG(LogTemp, Warning, TEXT("Remove Item after Amount : %d"), InventorySlots[Index].Amount);
+			if(InventorySlots[Index].Amount <= 0)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Remove Item and destroy"));
+				InventorySlots[Index].Item->ConditionalBeginDestroy();
+				InventorySlots[Index].Item = nullptr;
+				InventorySlots[Index].Amount = 0;
+			}
+		}
+	}
+    return false;
 }

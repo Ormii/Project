@@ -16,8 +16,14 @@ class UEPROJECT_API ABaseAttackItem : public ABaseItem
 	
 public:
 	ABaseAttackItem();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	
 public:
 	virtual bool Interact(AActor* OtherActor) override;
 
-	virtual bool UseItem();
+	virtual bool EquipItem() override;
+	virtual bool UnEquipItem() override;
 };

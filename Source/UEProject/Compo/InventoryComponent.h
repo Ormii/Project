@@ -35,6 +35,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool UpdateInventorySlots(int32 Index);
 
+	UFUNCTION(BlueprintCallable)
+	bool UseItem(int32 Index);
+
+	UFUNCTION(BlueprintCallable)
+	bool EquipItem(int32 Index);
+
+	UFUNCTION(BlueprintCallable)
+	bool UnEquipItem(int32 Index);
+
+	UFUNCTION(BlueprintCallable)
+	bool RemoveItem(int32 Index);
+	
 	template <class T>
 	bool AddItem(T *Item, int32 Amount, int32& Remain);
 
@@ -55,11 +67,12 @@ inline bool UInventoryComponent::AddItem(T *Item, int32 Amount, int32& Remain)
 	if(Item->IsA(ABaseItem::StaticClass()) == false)
 		return false;
 
-	ABaseItem * newBaseItem = NewObject<T>(Item, T::StaticClass(), *Item->GetItemData().Name);
+	ABaseItem * newBaseItem = NewObject<T>();
 	if(newBaseItem == nullptr)
 		return false;
 
 	newBaseItem->SetItemData(((ABaseItem*)Item)->GetItemData());
+	newBaseItem->SetSurvivor(Cast<ASurvivor>(GetOwner()));
 	int32 MaxStackAmount = Item->GetItemData().MaxStackAmount;
 
 	bool result = false;

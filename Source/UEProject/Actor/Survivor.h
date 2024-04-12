@@ -46,6 +46,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	class UInventoryComponent * GetInventoryComponent();
 
+	void SetEquipedType(EEquipedType aEquipedType) {EquipedType = aEquipedType;}
+
 private:
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
@@ -107,7 +109,7 @@ private:
 	bool IsCrouch = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
-	EEquipedType EquipedType;
+	EEquipedType EquipedType = EEquipedType::EQUIPED_TYPE_UNARMED;
 
 
 	APlayerController *SurvivorPlayerController;

@@ -54,6 +54,8 @@ void ASurvivor::BeginPlay()
 		SurvivorPlayerController->PlayerCameraManager->ViewPitchMin = -45;
 		SurvivorPlayerController->PlayerCameraManager->ViewPitchMax = 45;
 	}
+
+	EquipedType = EEquipedType::EQUIPED_TYPE_UNARMED;
 }
 
 // Called every frame
@@ -124,9 +126,6 @@ IInteractable *ASurvivor::FindInteractableActor()
 	if(Camera == nullptr)
 		return nullptr;
 
-	if(UseTab == true)
-		return nullptr;
-
 	IInteractable *InteractableActor = nullptr;
 	FVector CameraLocation = Camera->GetComponentLocation();
 	FRotator CameraRotation = Camera->GetComponentRotation();
@@ -170,6 +169,8 @@ IInteractable *ASurvivor::FindInteractableActor()
 
 void ASurvivor::Interact()
 {
+	if(UseTab == true)
+		return;
 	UE_LOG(LogTemp, Warning, TEXT("Interact key Action"));
 
 	IInteractable *InteractableActor = FindInteractableActor();

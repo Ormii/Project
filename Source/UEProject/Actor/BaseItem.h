@@ -27,14 +27,22 @@ public:
 
 	virtual bool Interact(AActor* OtherActor) override;
 
+	UFUNCTION(BlueprintCallable)
 	virtual bool UseItem();
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool EquipItem();
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool UnEquipItem();
 
 	bool GetIsVisibleRange(){return IsVisibleRange;}
 	bool GetIsInteractRange(){return IsInteractRange;}
 
 
 	void SetItemData(FItemData aItemData) {ItemData = aItemData;}
-	
+	void SetSurvivor(class ASurvivor* aSurvivor){Survivor = aSurvivor;}
+
 	UFUNCTION(BlueprintPure)
 	FItemData GetItemData(){return ItemData;}
 

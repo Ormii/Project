@@ -16,9 +16,13 @@ class UEPROJECT_API ABaseHealthItem : public ABaseItem
 
 public:
 	ABaseHealthItem();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	
 public:
 	virtual bool Interact(AActor* OtherActor) override;
 
 	virtual bool UseItem();
-	
 };

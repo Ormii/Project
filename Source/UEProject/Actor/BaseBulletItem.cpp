@@ -6,7 +6,16 @@
 
 ABaseBulletItem::ABaseBulletItem()
 {
+    ItemData.ItemType = EItemType::EITEM_TYPE_DEFAULT_BULLET;
+    ItemData.Name = "Bullet";
+    ItemData.CanbeUse = false;
+    ItemData.CanbeEquiped = false;
     ItemData.MaxStackAmount = 300;
+}
+
+void ABaseBulletItem::BeginPlay()
+{
+    Super::BeginPlay();
 }
 
 bool ABaseBulletItem::Interact(AActor *OtherActor)

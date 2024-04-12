@@ -16,6 +16,11 @@ class UEPROJECT_API ABaseKeyItem : public ABaseItem
 	
 public:
 	ABaseKeyItem();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	
 public:
 	virtual bool Interact(AActor* OtherActor) override;
 
