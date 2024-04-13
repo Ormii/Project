@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "BaseInventoryWidget.h"
+#include "BaseEquipWidget.h"
 #include "BaseTabUMGWidget.generated.h"
 
 /**
@@ -17,10 +18,14 @@ class UEPROJECT_API UBaseTabUMGWidget : public UUserWidget
 	
 public:
 	UBaseInventoryWidget *GetInventoryWidget(){return InventoryWidgetRef;}
+	UBaseEquipWidget *GetEquipWidget(){return EquipWidgetRef;}
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	UBaseInventoryWidget* InventoryWidgetRef;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	UBaseEquipWidget* EquipWidgetRef;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	class UButton *CloseDropDownButtonRef;

@@ -3,6 +3,7 @@
 #include "BaseAttackItem.h"
 #include "Actor/Survivor.h"
 #include "Compo/InventoryComponent.h"
+#include "Compo/EquipComponent.h"
 
 ABaseAttackItem::ABaseAttackItem()
 {
@@ -44,45 +45,53 @@ bool ABaseAttackItem::Interact(AActor *OtherActor)
 bool ABaseAttackItem::EquipItem()
 {
 	Super::EquipItem();
-	ItemData.CanbeEquiped = false;
-	ItemData.CanbeUnEquip = true;
+	UE_LOG(LogTemp, Warning, TEXT("Equip start"));
 
 	if(Survivor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Equip start"));
-		switch(ItemData.ItemType)
+		int32 EmptyIndex = 0;
+		UEquipComponent *Equipped = Survivor->GetEquipComponent();
+		if(Equipped)
 		{
-			case EItemType::EITEM_TYPE_DEFAULT_KNIFE:
-				Survivor->SetEquipedType(EEquipedType::EQUIPED_TYPE_KNIFE);
-				break;
-			case EItemType::EITEM_TYPE_DEFAULT_GUN:
-				Survivor->SetEquipedType(EEquipedType::EQUIPED_TYPE_PISTOL);
-				break;
-			default:
-				break;
+			if(Equipped->CheckEmptySlot(EmptyIndex) == true)
+			{
+				ItemData.CanbeEquiped = false;
+				ItemData.CanbeUnEquip = true;
+				Equipped->SetEquipSlot(this,EmptyIndex);
+			}
 		}
-
-		Survivor->GetAnim
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Survivor not setted"));
 	}
 
-    return true;
+    return false;
 }
 
 bool ABaseAttackItem::UnEquipItem()
 {
 	Super::UnEquipItem();
-    ItemData.CanbeEquiped = true;
-	ItemData.CanbeUnEquip = false;
-	
 	
 	if(Survivor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UnEquip start"));
-		Survivor->SetEquipedType(EEquipedType::EQUIPED_TYPE_UNARMED);
+		UEquipComponent *Equipped = Survivor->GetEquipComponent();
+		auto EquipArray = Equipped->GetEquipArray();
+		if(Equipped)
+		{
+			for(int i = 0; i < EquipArray.Num(); ++i)
+			{
+				if(EquipArray[i] == this)
+				{
+					ItemData.CanbeEquiped = true;
+					ItemData.CanbeUnEquip = false;
+					Equipped->RemoveEquipSlot(i);
+					
+					if(this == Survivor->GetCurrentAttackItem())
+					{
+						Survivor->SetCurrentAttackItem(nullptr);
+					}
+					return true;
+				}
+			}
+		}
 	}
-	return true;
+
+	return false;
 }

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "BaseAttackItem.h"
 #include "Survivor.generated.h"
 
 
@@ -46,11 +47,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	class UInventoryComponent * GetInventoryComponent();
 
-	void SetEquipedType(EEquipedType aEquipedType) {EquipedType = aEquipedType;}
+	UFUNCTION(BlueprintCallable)
+	class UEquipComponent * GetEquipComponent();
 
+	void SetEquipedType(EEquipedType aEquipedType) {EquipedType = aEquipedType;}
+	void SetCurrentAttackItem(ABaseAttackItem *Item);
+	ABaseAttackItem *GetCurrentAttackItem(){return CurrentAttackItem;}
 private:
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
+	void EquipSlot1();
+	void EquipSlot2();
+	void EquipSlot3();
+	void EquipSlot4();
 	void CrouchActivate();
 	void UnCrouchActivate();
 
@@ -77,6 +86,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UInventoryComponent *Inventory;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UHealthComponent* Health;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UEquipComponent* Equipped;
+
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputMappingContext *InputMappingContext;
@@ -96,6 +111,18 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* TabInputAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* EquipSlot1InputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* EquipSlot2InputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* EquipSlot3InputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* EquipSlot4InputAction;
+
 	UPROPERTY(EditAnywhere, Category = "Control", meta = (AllowPrivateAccess = "true"))
 	float RotationRate = 30.0f;
 
@@ -111,6 +138,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
 	EEquipedType EquipedType = EEquipedType::EQUIPED_TYPE_UNARMED;
 
-
 	APlayerController *SurvivorPlayerController;
+	ABaseAttackItem *CurrentAttackItem = nullptr;
 };

@@ -14,6 +14,8 @@
 #include "../PlayerController/BasePlayerController.h"
 #include "../Interface/Interactable.h"
 #include "../Compo/InventoryComponent.h"
+#include "../Compo/HealthComponent.h"
+#include "../Compo/EquipComponent.h"
 #include "BaseTabUMGWidget.h"
 #include "BaseItem.h"
 #include "BaseDoor.h"
@@ -32,6 +34,8 @@ ASurvivor::ASurvivor()
 	Camera->AttachToComponent(SpringArm, FAttachmentTransformRules::KeepRelativeTransform);
 
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
+	Health = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
+	Equipped = CreateDefaultSubobject<UEquipComponent>(TEXT("Equipped"));
 
 	SpringArm->bUsePawnControlRotation = true;
 }
@@ -77,6 +81,10 @@ void ASurvivor::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ASurvivor::CrouchActivate);
 		EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ASurvivor::UnCrouchActivate);
 		EnhancedInputComponent->BindAction(TabInputAction, ETriggerEvent::Started, this, &ASurvivor::InventoryActivate);
+		EnhancedInputComponent->BindAction(EquipSlot1InputAction, ETriggerEvent::Triggered, this, &ASurvivor::EquipSlot1);
+		EnhancedInputComponent->BindAction(EquipSlot2InputAction, ETriggerEvent::Triggered, this, &ASurvivor::EquipSlot2);
+		EnhancedInputComponent->BindAction(EquipSlot3InputAction, ETriggerEvent::Triggered, this, &ASurvivor::EquipSlot3);
+		EnhancedInputComponent->BindAction(EquipSlot4InputAction, ETriggerEvent::Triggered, this, &ASurvivor::EquipSlot4);
 	}
 }
 
@@ -90,6 +98,32 @@ UInventoryComponent *ASurvivor::GetInventoryComponent()
     return Inventory;
 }
 
+UEquipComponent *ASurvivor::GetEquipComponent()
+{
+    return Equipped;
+}
+
+void ASurvivor::SetCurrentAttackItem(ABaseAttackItem *Item)
+{
+	CurrentAttackItem = Item;
+	if(CurrentAttackItem == nullptr)
+	{
+		EquipedType = EEquipedType::EQUIPED_TYPE_UNARMED;
+		return;
+	}
+	
+	switch(CurrentAttackItem->GetItemData().ItemType)
+	{
+		case EItemType::EITEM_TYPE_DEFAULT_KNIFE:
+			EquipedType = EEquipedType::EQUIPED_TYPE_KNIFE;
+			break;
+		case EItemType::EITEM_TYPE_DEFAULT_GUN:
+			EquipedType = EEquipedType::EQUIPED_TYPE_PISTOL;
+			break;
+		default:
+			break;
+	}
+}
 
 void ASurvivor::Move(const FInputActionValue &value)
 {
@@ -105,8 +139,56 @@ void ASurvivor::Look(const FInputActionValue &value)
 	AddControllerYawInput(LookVector2D.X * RotationRate * GetWorld()->GetDeltaSeconds());
 }
 
+void ASurvivor::EquipSlot1()
+{
+	if(UseTab)
+		return;
+
+	if(Equipped)
+	{
+		ABaseAttackItem *AttackItem = Equipped->GetEquipItemAtIndex(0);
+		SetCurrentAttackItem(AttackItem);
+	}
+}
+
+void ASurvivor::EquipSlot2()
+{
+	if(UseTab)
+		return;
+
+	if(Equipped)
+	{
+		ABaseAttackItem *AttackItem = Equipped->GetEquipItemAtIndex(1);
+		SetCurrentAttackItem(AttackItem);
+	}
+}
+
+void ASurvivor::EquipSlot3()
+{
+	if(UseTab)
+		return;
+		
+	if(Equipped)
+	{
+		ABaseAttackItem *AttackItem = Equipped->GetEquipItemAtIndex(2);
+		SetCurrentAttackItem(AttackItem);
+	}
+}
+
+void ASurvivor::EquipSlot4()
+{
+	if(Equipped)
+	{
+		ABaseAttackItem *AttackItem = Equipped->GetEquipItemAtIndex(3);
+		SetCurrentAttackItem(AttackItem);
+	}
+}
+
 void ASurvivor::CrouchActivate()
 {
+	if(UseTab)
+		return;
+
 	IsCrouch = true;
 	UE_LOG(LogTemp, Warning, TEXT("Crouch!"));
 	GetCharacterMovement()->Crouch();
@@ -203,7 +285,6 @@ void ASurvivor::InventoryActivate()
 		GetCharacterMovement()->DisableMovement();
 		
 		SurvivorPlayerController->bShowMouseCursor = true;
-		
 	}
 	else
 	{
