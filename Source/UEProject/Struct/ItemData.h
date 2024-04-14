@@ -31,6 +31,9 @@ struct UEPROJECT_API FItemData
     FString  Name = "";
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString Description = ""; 
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     class UTexture2D *Icon = nullptr;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -44,4 +47,8 @@ struct UEPROJECT_API FItemData
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool CanbeUnEquip = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool CanbeDrop = true;
+
 };

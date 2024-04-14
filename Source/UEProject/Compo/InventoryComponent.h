@@ -45,6 +45,9 @@ public:
 	bool UnEquipItem(int32 Index);
 
 	UFUNCTION(BlueprintCallable)
+	bool DropItem(int32 Index);
+
+	UFUNCTION(BlueprintCallable)
 	bool RemoveItem(int32 Index);
 	
 	template <class T>

@@ -171,6 +171,49 @@ bool UInventoryComponent::UnEquipItem(int32 Index)
 	return false;
 }
 
+bool UInventoryComponent::DropItem(int32 Index)
+{
+	FInventoryItemData InventoryItemData{};
+	if(GetItemDataAtIndex(InventoryItemData, Index) == true)
+	{
+		ABaseItem* Item = InventoryItemData.Item;
+		int32 Amount = InventoryItemData.Amount;
+
+		if(Amount > 0)
+		{
+			while(Amount > 0)
+			{
+				if(RemoveItem(Index) == true)
+				{
+					Amount--;
+					continue;
+				}
+
+				UpdateInventorySlots(Index);
+				break;
+			}
+
+			ABasePlayerController *PlayerController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+			if(PlayerController == nullptr)
+				return false;
+
+			UBaseTabUMGWidget *TabWidget = PlayerController->GetTabWidget();
+			if(TabWidget == nullptr)
+				return false;
+
+			UBaseInventoryWidget *InventoryWidget = TabWidget->GetInventoryWidget();
+			if(InventoryWidget == nullptr)
+				return false;
+
+
+			InventoryWidget->CloseDropDownMenu();
+
+			return true;
+		}
+	}
+    return false;
+}
+
 bool UInventoryComponent::RemoveItem(int32 Index)
 {
 	FInventoryItemData InventoryItemData{0,};

@@ -125,6 +125,16 @@ void ASurvivor::SetCurrentAttackItem(ABaseAttackItem *Item)
 	}
 }
 
+void ASurvivor::AddInteractItemCandiArray(ABaseItem * Item)
+{
+	InteractItemCandiArray.Add(Item);
+}
+
+void ASurvivor::RemoveInteractItemCandiArray(ABaseItem *Item)
+{
+	InteractItemCandiArray.Remove(Item);
+}
+
 void ASurvivor::Move(const FInputActionValue &value)
 {
 	const FVector2D MoveVector2D = value.Get<FVector2D>();
@@ -203,11 +213,24 @@ void ASurvivor::UnCrouchActivate()
 	AnimationUnCrouchCamera();
 }
 
-IInteractable *ASurvivor::FindInteractableActor()
+IInteractable *ASurvivor::FindInteractItemActor()
 {
 	if(Camera == nullptr)
 		return nullptr;
 
+	IInteractable *InteractableActor = nullptr;
+	for(int i = 0; i < InteractItemCandiArray.Num(); ++i)
+	{
+		ABaseItem* Item = InteractItemCandiArray[i];
+		if(Item == nullptr)
+			continue;
+		
+		InteractableActor = Item;
+		break;
+	}
+
+	return InteractableActor;
+/*
 	IInteractable *InteractableActor = nullptr;
 	FVector CameraLocation = Camera->GetComponentLocation();
 	FRotator CameraRotation = Camera->GetComponentRotation();
@@ -246,7 +269,9 @@ IInteractable *ASurvivor::FindInteractableActor()
 			UE_LOG(LogTemp, Warning, TEXT("Target : %s"), *Hit.GetActor()->GetName());
 		}
 	}
+
     return InteractableActor;
+*/
 }
 
 void ASurvivor::Interact()
@@ -255,12 +280,13 @@ void ASurvivor::Interact()
 		return;
 	UE_LOG(LogTemp, Warning, TEXT("Interact key Action"));
 
-	IInteractable *InteractableActor = FindInteractableActor();
+	IInteractable *InteractableActor = FindInteractItemActor();
 
 	if(InteractableActor == nullptr)
 		return;
 
 	UE_LOG(LogTemp, Warning, TEXT("Interact key Action after"));
+	RemoveInteractItemCandiArray(Cast<ABaseItem>(InteractableActor));
 
 	InteractableActor->Interact(this);
 }

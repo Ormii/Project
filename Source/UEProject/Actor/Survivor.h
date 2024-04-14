@@ -53,6 +53,14 @@ public:
 	void SetEquipedType(EEquipedType aEquipedType) {EquipedType = aEquipedType;}
 	void SetCurrentAttackItem(ABaseAttackItem *Item);
 	ABaseAttackItem *GetCurrentAttackItem(){return CurrentAttackItem;}
+
+	UFUNCTION(BlueprintCallable)
+	void AddInteractItemCandiArray(class ABaseItem* Item);
+	
+	UFUNCTION(BlueprintCallable)
+	void RemoveInteractItemCandiArray(class ABaseItem* Item);
+
+
 private:
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
@@ -63,7 +71,7 @@ private:
 	void CrouchActivate();
 	void UnCrouchActivate();
 
-	class IInteractable* FindInteractableActor();
+	class IInteractable* FindInteractItemActor();
 	void Interact();
 
 	UFUNCTION(BlueprintCallable)
@@ -138,6 +146,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
 	EEquipedType EquipedType = EEquipedType::EQUIPED_TYPE_UNARMED;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interact", meta = (AllowPrivateAccess ="true"))
+	TArray<ABaseItem*> InteractItemCandiArray;
+
+	
 	APlayerController *SurvivorPlayerController;
 	ABaseAttackItem *CurrentAttackItem = nullptr;
 };

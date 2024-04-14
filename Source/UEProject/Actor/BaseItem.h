@@ -21,6 +21,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	virtual void OnOverlapBegin(class UPrimitiveComponent* newComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -35,10 +40,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual bool UnEquipItem();
-
-	bool GetIsVisibleRange(){return IsVisibleRange;}
-	bool GetIsInteractRange(){return IsInteractRange;}
-
 
 	void SetItemData(FItemData aItemData) {ItemData = aItemData;}
 	void SetSurvivor(class ASurvivor* aSurvivor){Survivor = aSurvivor;}
@@ -73,15 +74,16 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent *DetectSphere;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent *InteractWidget;
-
 
 	UPROPERTY(VisibleInstanceOnly)
 	UMaterialInterface* OutlineMaterial = nullptr;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool UpdateWidget = false;
 
-	bool IsInteractRange = false;
-	bool IsVisibleRange = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool RegisterCandiArray = false;
 	
 };
