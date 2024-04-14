@@ -179,19 +179,22 @@ bool UInventoryComponent::DropItem(int32 Index)
 		ABaseItem* Item = InventoryItemData.Item;
 		int32 Amount = InventoryItemData.Amount;
 
+		if(Item == nullptr)
+			return false;
+
 		if(Amount > 0)
 		{
 			while(Amount > 0)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Remove : %d"), Amount);
 				if(RemoveItem(Index) == true)
 				{
 					Amount--;
 					continue;
 				}
-
-				UpdateInventorySlots(Index);
 				break;
 			}
+			UpdateInventorySlots(Index);
 
 			ABasePlayerController *PlayerController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 			if(PlayerController == nullptr)
@@ -207,7 +210,6 @@ bool UInventoryComponent::DropItem(int32 Index)
 
 
 			InventoryWidget->CloseDropDownMenu();
-
 			return true;
 		}
 	}
@@ -235,6 +237,8 @@ bool UInventoryComponent::RemoveItem(int32 Index)
 				InventorySlots[Index].Item = nullptr;
 				InventorySlots[Index].Amount = 0;
 			}
+
+			return true;
 		}
 	}
     return false;
