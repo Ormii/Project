@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "BaseInventoryWidget.h"
 #include "BaseEquipWidget.h"
+#include "BaseExaminationWidget.h"
 #include "BaseTabUMGWidget.generated.h"
 
 /**
@@ -19,6 +20,7 @@ class UEPROJECT_API UBaseTabUMGWidget : public UUserWidget
 public:
 	UBaseInventoryWidget *GetInventoryWidget(){return InventoryWidgetRef;}
 	UBaseEquipWidget *GetEquipWidget(){return EquipWidgetRef;}
+	UBaseExaminationWidget *GetExaminationWidget(){return ExaminationWidgetRef;}
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
@@ -26,6 +28,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	UBaseEquipWidget* EquipWidgetRef;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	UBaseExaminationWidget *ExaminationWidgetRef;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	class UButton *CloseDropDownButtonRef;

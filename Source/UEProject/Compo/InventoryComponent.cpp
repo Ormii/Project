@@ -10,6 +10,8 @@
 #include "BaseTabUMGWidget.h"
 #include "BaseInventoryWidget.h"
 #include "BaseInventorySlotWidget.h"
+#include "BaseExaminationWidget.h"
+#include "BaseExamination.h"
 #include "InventoryComponent.h"
 
 // Sets default values for this component's properties
@@ -30,6 +32,12 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	TArray<AActor*> AllActors;
+ 	UGameplayStatics::GetAllActorsOfClass(GetWorld(),ABaseExamination::StaticClass(),AllActors);
+
+	ExaminationActor = nullptr;
+	if(AllActors.Num() > 0)
+		ExaminationActor = Cast<ABaseExamination>(AllActors[0]);
 }
 
 
@@ -139,6 +147,26 @@ bool UInventoryComponent::UseItem(int32 Index)
 	}
 
     return false;
+}
+
+bool UInventoryComponent::ExamineItem(int32 Index)
+{
+	ABasePlayerController *PlayerController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if(PlayerController == nullptr)
+		return false;
+
+	UBaseTabUMGWidget *TabWidget = PlayerController->GetTabWidget();
+	if(TabWidget == nullptr)
+		return false;
+
+	UBaseExaminationWidget *ExaminationWidget = TabWidget->GetExaminationWidget();
+	if(ExaminationWidget == nullptr)
+		return false;
+
+	ExaminationWidget->UpdateWidget(Index);
+	ExaminationWidget->SetVisibility(ESlateVisibility::Visible);
+
+    return true;
 }
 
 bool UInventoryComponent::EquipItem(int32 Index)

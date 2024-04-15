@@ -3,6 +3,7 @@
 
 #include "PlayerController/BasePlayerController.h"
 #include "BaseTabUMGWidget.h"
+#include "BaseExaminationWidget.h"
 #include "BasePlayerController.h"
 
 void ABasePlayerController::BeginPlay()
@@ -14,6 +15,12 @@ void ABasePlayerController::BeginPlay()
     {
         TabWidget->AddToViewport();
         TabWidget->SetVisibility(ESlateVisibility::Hidden);
+
+        UBaseExaminationWidget *ExaminationWidget = TabWidget->GetExaminationWidget();
+        if(ExaminationWidget)
+        {
+            ExaminationWidget->SetVisibility(ESlateVisibility::Collapsed);
+        }
     }
 }
 

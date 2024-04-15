@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "../Struct/InventoryItemData.h"
 #include "../Actor/BaseItem.h"
+#include "../Actor/BaseExamination.h"
 #include "InventoryComponent.generated.h"
 
 
@@ -26,6 +27,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	ABaseExamination* GetExaminationActor(){return ExaminationActor;}
+
 	bool CheckEmptySlot(int32& outIndex);
 	bool CheckForFreeSlot(ABaseItem *Item, int32& Index);
 
@@ -37,6 +40,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool UseItem(int32 Index);
+
+	UFUNCTION(BlueprintCallable)
+	bool ExamineItem(int32 Index);
 
 	UFUNCTION(BlueprintCallable)
 	bool EquipItem(int32 Index);
@@ -59,6 +65,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta= (AllowPrivateAccess = "true"))
 	int32 MaxInventoryCapacity = 8;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Examine Actor", meta = (AllowPrivateAccess = "true"))
+	ABaseExamination* ExaminationActor;
 };
 
 template <class T>

@@ -51,4 +51,21 @@ struct UEPROJECT_API FItemData
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool CanbeDrop = true;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool CanbeExamine = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    class UStaticMesh *ExaminationMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float ExaminationMeshOffsetX;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float ExaminationMeshOffsetY;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float ExaminationMeshOffsetZ;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FRotator ExaminationMeshRotator;
 };

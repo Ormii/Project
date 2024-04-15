@@ -17,6 +17,7 @@
 #include "../Compo/HealthComponent.h"
 #include "../Compo/EquipComponent.h"
 #include "BaseTabUMGWidget.h"
+#include "BaseExaminationWidget.h"
 #include "BaseItem.h"
 #include "BaseDoor.h"
 #include "BasePuzzle.h"
@@ -230,48 +231,6 @@ IInteractable *ASurvivor::FindInteractItemActor()
 	}
 
 	return InteractableActor;
-/*
-	IInteractable *InteractableActor = nullptr;
-	FVector CameraLocation = Camera->GetComponentLocation();
-	FRotator CameraRotation = Camera->GetComponentRotation();
-	FVector CameraDirection = CameraRotation.Vector();
-
-	FHitResult Hit;
-	FVector Start = CameraLocation;
-	FVector End = CameraLocation + CameraDirection * SearchRange;
-
-	FCollisionQueryParams Param;
-	Param.AddIgnoredActor(this);
-	
-	InteractableActor = nullptr;
-
-	bool Succeed = GetWorld()->SweepSingleByChannel(Hit, Start, End, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel1, FCollisionShape::MakeSphere(40),Param);
-	if(Succeed)
-	{
-		ABaseItem *BaseItemClass = Cast<ABaseItem>(Hit.GetActor());
-		if(BaseItemClass != nullptr)
-		{
-			InteractableActor = Cast<IInteractable>(BaseItemClass);
-			UE_LOG(LogTemp, Warning, TEXT("Target : %s"), *Hit.GetActor()->GetName());
-		}
-
-		ABaseDoor *BaseDoorClass = Cast<ABaseDoor>(Hit.GetActor());
-		if(BaseDoorClass != nullptr)
-		{
-			InteractableActor = Cast<IInteractable>(BaseDoorClass);
-			UE_LOG(LogTemp, Warning, TEXT("Target : %s"), *Hit.GetActor()->GetName());
-		}
-
-		ABasePuzzle *BasePuzzleClass = Cast<ABasePuzzle>(Hit.GetActor());
-		if(BasePuzzleClass != nullptr)
-		{
-			InteractableActor = Cast<IInteractable>(BasePuzzleClass);
-			UE_LOG(LogTemp, Warning, TEXT("Target : %s"), *Hit.GetActor()->GetName());
-		}
-	}
-
-    return InteractableActor;
-*/
 }
 
 void ASurvivor::Interact()
@@ -307,6 +266,13 @@ void ASurvivor::InventoryActivate()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Activate :%d"), UseTab);	
 		TabWidget->SetVisibility(ESlateVisibility::Visible);
+
+		UBaseExaminationWidget *ExaminationWidget = TabWidget->GetExaminationWidget();
+        if(ExaminationWidget)
+        {
+            ExaminationWidget->SetVisibility(ESlateVisibility::Collapsed);
+        }
+
 		GetController()->SetIgnoreLookInput(true);
 		GetCharacterMovement()->DisableMovement();
 		
@@ -316,6 +282,13 @@ void ASurvivor::InventoryActivate()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Activate :%d"), UseTab);	
 		TabWidget->SetVisibility(ESlateVisibility::Hidden);
+
+		UBaseExaminationWidget *ExaminationWidget = TabWidget->GetExaminationWidget();
+        if(ExaminationWidget)
+        {
+            ExaminationWidget->SetVisibility(ESlateVisibility::Collapsed);
+        }
+
 		GetController()->SetIgnoreLookInput(false);
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 

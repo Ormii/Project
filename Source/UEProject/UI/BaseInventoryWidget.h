@@ -39,4 +39,5 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	class UUniformGridPanel *InventoryGridPanelRef;
+
 };
