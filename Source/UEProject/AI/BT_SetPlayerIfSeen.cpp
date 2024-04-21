@@ -5,7 +5,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Survivor.h"
-#include "AIController.h"
+#include "BaseAIController.h"
 
 UBT_SetPlayerIfSeen::UBT_SetPlayerIfSeen()
 {
@@ -20,11 +20,14 @@ void UBT_SetPlayerIfSeen::TickNode(UBehaviorTreeComponent &OwnerComp, uint8 *Nod
     if(pSurvivor == nullptr)
         return;
 
-    AAIController *AIController = OwnerComp.GetAIOwner();
-    if(AIController == nullptr)
+    ABaseAIController *BaseAIController = Cast<ABaseAIController>(OwnerComp.GetAIOwner());
+    if(BaseAIController == nullptr)
         return;
 
-    if(AIController->LineOfSightTo(pSurvivor))
+    TArray<AActor*> IgnoreParams;
+    if(pSurvivor->GetCurrentAttackItem())
+        IgnoreParams.Add(Cast<AActor>(pSurvivor->GetCurrentAttackItem()));
+    if(BaseAIController->LineOfSightToWithIgnoreParams(pSurvivor,IgnoreParams))
     {  
         UE_LOG(LogTemp, Warning, TEXT("Find Survivor"));
         OwnerComp.GetBlackboardComponent()->SetValueAsObject(GetSelectedBlackboardKey(), pSurvivor);

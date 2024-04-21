@@ -13,5 +13,14 @@ UCLASS()
 class UEPROJECT_API AEnemy : public ABaseCharacter
 {
 	GENERATED_BODY()
-	
+
+public:
+	AEnemy();	
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UHealthComponent* Health;
 };

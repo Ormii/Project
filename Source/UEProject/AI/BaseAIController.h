@@ -18,7 +18,8 @@ private:
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
-	
+	virtual bool LineOfSightToWithIgnoreParams(const AActor* Other, TArray<AActor*>& IgnoreParams,FVector ViewPoint = FVector(ForceInit), bool bAlternateChecks = false);
+
 public:
 	UPROPERTY(EditAnywhere)
 	class UBehaviorTree* AIBehavior;
