@@ -110,6 +110,14 @@ void ABaseItem::Tick(float DeltaTime)
 		FHitResult HitResult{};
 		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(this);
+		if(Survivor)
+		{
+			Params.AddIgnoredActor(Survivor);
+			if(Survivor->GetCurrentAttackItem())
+			{
+				Params.AddIgnoredActor(Survivor->GetCurrentAttackItem());
+			}
+		}
 		DrawDebugLine(GetWorld(), ActorLocation, ActorLocation + (CameraLocation - ActorLocation),FColor::Red,false, 1.0f);
 		if(GetWorld()->LineTraceSingleByChannel(HitResult, ActorLocation, CameraLocation, ECollisionChannel::ECC_Visibility,Params) == false)
 		{
@@ -155,4 +163,12 @@ bool ABaseItem::UnEquipItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("UnEquiped : %s"), *ItemData.Name);
     return false;
+}
+
+void ABaseItem::SetDetectSphereEnable(bool bEnable)
+{
+	if(DetectSphere)
+	{
+		DetectSphere->Activate(bEnable);
+	}
 }

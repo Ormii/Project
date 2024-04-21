@@ -52,6 +52,8 @@ public:
 
 	void SetEquipedType(EEquipedType aEquipedType) {EquipedType = aEquipedType;}
 	void SetCurrentAttackItem(ABaseAttackItem *Item);
+
+	void SetIsAttacking(bool bIsAttacking){IsAttacking = bIsAttacking;}
 	ABaseAttackItem *GetCurrentAttackItem(){return CurrentAttackItem;}
 
 	UFUNCTION(BlueprintCallable)
@@ -59,7 +61,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void RemoveInteractItemCandiArray(class ABaseItem* Item);
-
 
 private:
 	void Move(const FInputActionValue& value);
@@ -69,7 +70,15 @@ private:
 	void EquipSlot3();
 	void EquipSlot4();
 	void CrouchActivate();
-	void UnCrouchActivate();
+	void CrouchUnActivate();
+	void SprintActivate();
+	void SprintUnActivate();
+	void ZoomIn();
+	void ZoomOut();
+	void Attack();
+
+	void PossessPistolAttackMontage();
+	void PossessKnifeAttackMontage();
 
 	class IInteractable* FindInteractItemActor();
 	void Interact();
@@ -85,6 +94,7 @@ public:
 	void AnimationUnCrouchCamera();
 	
 private:
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent *SpringArm;
 	
@@ -114,10 +124,16 @@ private:
 	UInputAction* CrouchInputAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* SprintInputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* InteractInputAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* TabInputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* ZoomInInputAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* EquipSlot1InputAction;
@@ -143,12 +159,35 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
 	bool IsCrouch = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
+	bool IsSprint = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
+	bool IsZoomIn = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
+	bool IsAttackReady = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
+	bool IsAttacking = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Control", meta = (AllowPrivateAccess = "true"))
 	EEquipedType EquipedType = EEquipedType::EQUIPED_TYPE_UNARMED;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interact", meta = (AllowPrivateAccess ="true"))
 	TArray<ABaseItem*> InteractItemCandiArray;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> PistolAttackActionMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> PistolAttackCrouchActionMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> KnifeAttackActionMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> KnifeAttackCrouchActionMontage;
 	
 	APlayerController *SurvivorPlayerController;
 	ABaseAttackItem *CurrentAttackItem = nullptr;

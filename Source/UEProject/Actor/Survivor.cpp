@@ -3,10 +3,13 @@
 
 #include "Survivor.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "Camera/CameraComponent.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimNotifies/AnimNotify.h"
 #include "DrawDebugHelpers.h"
 #include "InputActionValue.h"
 #include "EnhancedInputComponent.h"
@@ -67,6 +70,35 @@ void ASurvivor::BeginPlay()
 void ASurvivor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	if(Camera)
+	{
+		switch(EquipedType)
+		{
+			case EEquipedType::EQUIPED_TYPE_PISTOL:
+			{
+				if(IsZoomIn)
+				{
+					float FOV = Camera->FieldOfView;
+					Camera->FieldOfView = UKismetMathLibrary::FInterpTo(Camera->FieldOfView,45.f,GetWorld()->DeltaTimeSeconds,3.0f);
+					if(FMath::Abs(Camera->FieldOfView - 45.0f)<=5.0f && IsAttacking == false)
+						IsAttackReady = true;
+				}
+				else
+				{
+					Camera->FieldOfView = UKismetMathLibrary::FInterpTo(Camera->FieldOfView,90.f,GetWorld()->DeltaTimeSeconds,3.0f);
+					IsAttackReady = false;
+				}
+			}
+				break;
+			case EEquipedType::EQUIPED_TYPE_KNIFE:
+				IsAttackReady = !IsAttacking;
+				break;
+			default:
+				break;
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -80,8 +112,12 @@ void ASurvivor::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ASurvivor::Look);
 		EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ASurvivor::Interact);
 		EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ASurvivor::CrouchActivate);
-		EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ASurvivor::UnCrouchActivate);
+		EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ASurvivor::CrouchUnActivate);
+		EnhancedInputComponent->BindAction(SprintInputAction,ETriggerEvent::Started,this, &ASurvivor::SprintActivate);
+		EnhancedInputComponent->BindAction(SprintInputAction,ETriggerEvent::Completed,this,&ASurvivor::SprintUnActivate);
 		EnhancedInputComponent->BindAction(TabInputAction, ETriggerEvent::Started, this, &ASurvivor::InventoryActivate);
+		EnhancedInputComponent->BindAction(ZoomInInputAction, ETriggerEvent::Started, this, &ASurvivor::ZoomIn);
+		EnhancedInputComponent->BindAction(ZoomInInputAction, ETriggerEvent::Completed, this, &ASurvivor::ZoomOut);
 		EnhancedInputComponent->BindAction(EquipSlot1InputAction, ETriggerEvent::Triggered, this, &ASurvivor::EquipSlot1);
 		EnhancedInputComponent->BindAction(EquipSlot2InputAction, ETriggerEvent::Triggered, this, &ASurvivor::EquipSlot2);
 		EnhancedInputComponent->BindAction(EquipSlot3InputAction, ETriggerEvent::Triggered, this, &ASurvivor::EquipSlot3);
@@ -106,20 +142,34 @@ UEquipComponent *ASurvivor::GetEquipComponent()
 
 void ASurvivor::SetCurrentAttackItem(ABaseAttackItem *Item)
 {
-	CurrentAttackItem = Item;
-	if(CurrentAttackItem == nullptr)
+	if(CurrentAttackItem)
+	{
+		CurrentAttackItem->Destroy();
+	}
+
+	CurrentAttackItem = nullptr;
+	if(Item == nullptr)
 	{
 		EquipedType = EEquipedType::EQUIPED_TYPE_UNARMED;
 		return;
 	}
-	
+
+	CurrentAttackItem = GetWorld()->SpawnActor<ABaseAttackItem>(ABaseAttackItem::StaticClass());
+	CurrentAttackItem->SetDetectSphereEnable(false);
+	CurrentAttackItem->SetItemData(Item->GetItemData());
+	CurrentAttackItem->SetItemMesh(Item->GetItemMesh());
+
 	switch(CurrentAttackItem->GetItemData().ItemType)
 	{
 		case EItemType::EITEM_TYPE_DEFAULT_KNIFE:
 			EquipedType = EEquipedType::EQUIPED_TYPE_KNIFE;
+			CurrentAttackItem->AttachToComponent(GetMesh(),FAttachmentTransformRules::KeepRelativeTransform, TEXT("KnifeSocket"));
+			CurrentAttackItem->SetOwner(this);
 			break;
 		case EItemType::EITEM_TYPE_DEFAULT_GUN:
 			EquipedType = EEquipedType::EQUIPED_TYPE_PISTOL;
+			CurrentAttackItem->AttachToComponent(GetMesh(),FAttachmentTransformRules::KeepRelativeTransform, TEXT("PistolSocket"));
+			CurrentAttackItem->SetOwner(this);
 			break;
 		default:
 			break;
@@ -199,19 +249,130 @@ void ASurvivor::CrouchActivate()
 {
 	if(UseTab)
 		return;
+	if(IsSprint)
+		return;
 
 	IsCrouch = true;
 	UE_LOG(LogTemp, Warning, TEXT("Crouch!"));
 	GetCharacterMovement()->Crouch();
+	GetCharacterMovement()->MaxWalkSpeed = 150.f;
 	AnimationCrouchCamera();
 }
 
-void ASurvivor::UnCrouchActivate()
+void ASurvivor::CrouchUnActivate()
 {
+	if(IsCrouch == false)
+		return;
+
 	IsCrouch = false;
-	UE_LOG(LogTemp, Warning, TEXT("UnCrouch!"));
+	UE_LOG(LogTemp, Warning, TEXT("Crouch Release!"));
 	GetCharacterMovement()->UnCrouch();
+	GetCharacterMovement()->MaxWalkSpeed = 200.f;
 	AnimationUnCrouchCamera();
+}
+
+void ASurvivor::SprintActivate()
+{
+	if(UseTab)
+		return;
+	if(IsCrouch)
+		return;
+	
+	IsSprint = true;
+	UE_LOG(LogTemp, Warning, TEXT("Sprint!"));
+	GetCharacterMovement()->MaxWalkSpeed = 350.f;
+}
+
+void ASurvivor::SprintUnActivate()
+{
+	if(IsSprint == false)
+		return;
+	
+	IsSprint = false;
+
+	UE_LOG(LogTemp, Warning, TEXT("Sprint Release!"));
+	GetCharacterMovement()->MaxWalkSpeed = 200.f;
+
+}
+
+void ASurvivor::ZoomIn()
+{
+	if(CurrentAttackItem == nullptr)
+		return;
+
+	switch(EquipedType)
+	{
+		case EEquipedType::EQUIPED_TYPE_PISTOL:
+			break;
+		default:
+			return;
+			break;
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("ZoomIn Start"));
+	IsZoomIn = true;
+}
+
+void ASurvivor::ZoomOut()
+{
+	UE_LOG(LogTemp, Warning, TEXT("ZoomOut Start"));
+	IsZoomIn = false;
+}
+
+void ASurvivor::Attack()
+{
+	if(CurrentAttackItem == nullptr)
+		return;
+
+	UE_LOG(LogTemp, Warning, TEXT("AttackStart"));
+	if(IsAttacking == true || IsAttackReady == false)
+		return;
+
+	switch(EquipedType)
+	{
+		case EEquipedType::EQUIPED_TYPE_PISTOL:
+			UE_LOG(LogTemp, Warning, TEXT("PistolAttackStart"));
+			if(IsZoomIn == false)
+				return;
+			PossessPistolAttackMontage();
+			break;
+		case EEquipedType::EQUIPED_TYPE_KNIFE:
+			UE_LOG(LogTemp, Warning, TEXT("KnifeAttackStart"));
+			PossessKnifeAttackMontage();
+			break;
+		default:
+			break;
+	}
+	
+	IsAttacking = true;
+	IsAttackReady = false;
+	UE_LOG(LogTemp, Warning, TEXT("Attack!"));
+}
+
+void ASurvivor::PossessPistolAttackMontage()
+{
+	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
+	if(IsCrouch)
+	{
+		animInstance->Montage_Play(PistolAttackCrouchActionMontage);
+	}
+	else
+	{
+		animInstance->Montage_Play(PistolAttackActionMontage);
+	}
+}
+
+void ASurvivor::PossessKnifeAttackMontage()
+{
+	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
+	if(IsCrouch)
+	{
+		animInstance->Montage_Play(KnifeAttackCrouchActionMontage);
+	}
+	else
+	{
+		animInstance->Montage_Play(KnifeAttackActionMontage);
+	}
 }
 
 IInteractable *ASurvivor::FindInteractItemActor()
@@ -237,12 +398,22 @@ void ASurvivor::Interact()
 {
 	if(UseTab == true)
 		return;
+
+	if(IsZoomIn == true)
+	{
+		Attack();
+		return;
+	}
+	
 	UE_LOG(LogTemp, Warning, TEXT("Interact key Action"));
 
 	IInteractable *InteractableActor = FindInteractItemActor();
 
 	if(InteractableActor == nullptr)
+	{
+		Attack();
 		return;
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Interact key Action after"));
 	RemoveInteractItemCandiArray(Cast<ABaseItem>(InteractableActor));

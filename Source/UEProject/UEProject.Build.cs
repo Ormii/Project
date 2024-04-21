@@ -20,6 +20,8 @@ public class UEProject : ModuleRules
 			"UEProject/Compo",
 			"UEProject/Struct",
 			"UEProject/UI",
+			"UEProject/Animation",
+			"UEProject/AI",
         });
 	}
 }

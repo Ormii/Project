@@ -84,6 +84,7 @@ inline bool UInventoryComponent::AddItem(T *Item, int32 Amount, int32& Remain)
 		return false;
 
 	newBaseItem->SetItemData(((ABaseItem*)Item)->GetItemData());
+	newBaseItem->SetItemMesh(((ABaseItem*)Item)->GetItemMesh());
 	newBaseItem->SetSurvivor(Cast<ASurvivor>(GetOwner()));
 	int32 MaxStackAmount = Item->GetItemData().MaxStackAmount;
 

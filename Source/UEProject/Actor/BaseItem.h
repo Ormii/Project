@@ -43,9 +43,13 @@ public:
 
 	void SetItemData(FItemData aItemData) {ItemData = aItemData;}
 	void SetSurvivor(class ASurvivor* aSurvivor){Survivor = aSurvivor;}
+	void SetDetectSphereEnable(bool bEnable);
 
 	UFUNCTION(BlueprintPure)
 	FItemData GetItemData(){return ItemData;}
+
+	TObjectPtr<UStaticMesh> GetItemMesh(){return ItemMesh->GetStaticMesh();}
+	void SetItemMesh(TObjectPtr<UStaticMesh> aItemMesh){ItemMesh->SetStaticMesh(aItemMesh);}
 
 	void 	SetAmount(int32 aAmount){ this->Amount = aAmount;}
 
