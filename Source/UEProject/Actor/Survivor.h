@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "BaseAttackItem.h"
+#include "Hitable.h"
 #include "Survivor.generated.h"
 
 
@@ -21,7 +22,7 @@ class UInputMappingContext;
 class UInputAction;
 
 UCLASS()
-class UEPROJECT_API ASurvivor : public ACharacter
+class UEPROJECT_API ASurvivor : public ACharacter, public IHitable
 {
 	GENERATED_BODY()
 
@@ -61,6 +62,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void RemoveInteractItemCandiArray(class ABaseItem* Item);
+
+	virtual void Hit(AActor* OtherActor) override;
 
 private:
 	void Move(const FInputActionValue& value);

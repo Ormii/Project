@@ -9,7 +9,7 @@ enum class EItemType : uint8
 
 	EITEM_TYPE_DEFAULT_KNIFE  UMETA(DisplayName = "Default Knife"),
 
-	EITEM_TYPE_DEFAULT_GUN  UMETA(DisplayName = "Default Gun"),
+	EITEM_TYPE_DEFAULT_PISTOL  UMETA(DisplayName = "Default Pistol"),
 
 	EITEM_TYPE_DEFAULT_BULLET  UMETA(DisplayName = "Default Bullet"),
 

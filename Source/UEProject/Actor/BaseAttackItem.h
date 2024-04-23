@@ -26,4 +26,10 @@ public:
 
 	virtual bool EquipItem() override;
 	virtual bool UnEquipItem() override;
+
+	float GetAttackDamage(){return AttackDamage;}
+protected:
+
+	UPROPERTY(EditAnywhere, Category = "Combet", meta = (AllowPrivateAccess = "true"))
+	float AttackDamage = 10.0f;
 };

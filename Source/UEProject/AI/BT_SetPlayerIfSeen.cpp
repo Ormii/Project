@@ -29,12 +29,10 @@ void UBT_SetPlayerIfSeen::TickNode(UBehaviorTreeComponent &OwnerComp, uint8 *Nod
         IgnoreParams.Add(Cast<AActor>(pSurvivor->GetCurrentAttackItem()));
     if(BaseAIController->LineOfSightToWithIgnoreParams(pSurvivor,IgnoreParams))
     {  
-        UE_LOG(LogTemp, Warning, TEXT("Find Survivor"));
         OwnerComp.GetBlackboardComponent()->SetValueAsObject(GetSelectedBlackboardKey(), pSurvivor);
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("UnFind Survivor"));
         OwnerComp.GetBlackboardComponent()->ClearValue(GetSelectedBlackboardKey());
     }
 }

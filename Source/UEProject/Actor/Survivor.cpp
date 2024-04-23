@@ -22,6 +22,8 @@
 #include "BaseTabUMGWidget.h"
 #include "BaseExaminationWidget.h"
 #include "BaseItem.h"
+#include "KnifeAttackItem.h"
+#include "PistolAttackItem.h"
 #include "BaseDoor.h"
 #include "BasePuzzle.h"
 
@@ -154,7 +156,18 @@ void ASurvivor::SetCurrentAttackItem(ABaseAttackItem *Item)
 		return;
 	}
 
-	CurrentAttackItem = GetWorld()->SpawnActor<ABaseAttackItem>(ABaseAttackItem::StaticClass());
+	switch(Item->GetItemData().ItemType)
+	{
+		case EItemType::EITEM_TYPE_DEFAULT_KNIFE:
+			CurrentAttackItem = Cast<ABaseAttackItem>(GetWorld()->SpawnActor<AKnifeAttackItem>(AKnifeAttackItem::StaticClass()));
+			break;
+		case EItemType::EITEM_TYPE_DEFAULT_PISTOL:
+			CurrentAttackItem = Cast<ABaseAttackItem>(GetWorld()->SpawnActor<APistolAttackItem>(APistolAttackItem::StaticClass()));
+			break;
+		default:
+			return;
+	}
+
 	CurrentAttackItem->SetDetectSphereEnable(false);
 	CurrentAttackItem->SetItemData(Item->GetItemData());
 	CurrentAttackItem->SetItemMesh(Item->GetItemMesh());
@@ -166,7 +179,7 @@ void ASurvivor::SetCurrentAttackItem(ABaseAttackItem *Item)
 			CurrentAttackItem->AttachToComponent(GetMesh(),FAttachmentTransformRules::KeepRelativeTransform, TEXT("KnifeSocket"));
 			CurrentAttackItem->SetOwner(this);
 			break;
-		case EItemType::EITEM_TYPE_DEFAULT_GUN:
+		case EItemType::EITEM_TYPE_DEFAULT_PISTOL:
 			EquipedType = EEquipedType::EQUIPED_TYPE_PISTOL;
 			CurrentAttackItem->AttachToComponent(GetMesh(),FAttachmentTransformRules::KeepRelativeTransform, TEXT("PistolSocket"));
 			CurrentAttackItem->SetOwner(this);
@@ -184,6 +197,11 @@ void ASurvivor::AddInteractItemCandiArray(ABaseItem * Item)
 void ASurvivor::RemoveInteractItemCandiArray(ABaseItem *Item)
 {
 	InteractItemCandiArray.Remove(Item);
+}
+
+void ASurvivor::Hit(AActor *OtherActor)
+{
+	
 }
 
 void ASurvivor::Move(const FInputActionValue &value)
