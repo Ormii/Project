@@ -8,6 +8,7 @@
 #include "NetworkingDistanceConstants.h"
 #include "BaseAttackItem.h"
 #include "BaseAIController.h"
+#include "Enemy.h"
 #include "Survivor.h"
 
 void ABaseAIController::BeginPlay()
@@ -18,13 +19,19 @@ void ABaseAIController::BeginPlay()
     {
         RunBehaviorTree(AIBehavior);
         GetBlackboardComponent()->SetValueAsObject(TEXT("Self"),this);
-        GetBlackboardComponent()->SetValueAsVector(TEXT("SelfLocation"),GetPawn()->GetActorLocation());
+        GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"),GetPawn()->GetActorLocation());
     }
 }
 
 void ABaseAIController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+	AEnemy *pEnemy = Cast<AEnemy>(GetPawn());
+	if(pEnemy != nullptr)
+	{
+		GetBlackboardComponent()->SetValueAsBool("Dead", pEnemy->GetIsDead());
+	}
 }
 
 bool ABaseAIController::LineOfSightToWithIgnoreParams(const AActor *Other, TArray<AActor*>& IgnoreParam, FVector ViewPoint, bool bAlternateChecks)

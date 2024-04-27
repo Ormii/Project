@@ -24,8 +24,6 @@ protected:
 protected:
 	UFUNCTION()
 	virtual void OnAttackSphereOverlapBegin(class UPrimitiveComponent* newComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -35,4 +33,7 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USphereComponent *AttackSphere;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem *ImpactEffect;
 };

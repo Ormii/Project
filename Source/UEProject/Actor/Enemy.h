@@ -24,6 +24,9 @@ public:
 public:
 	virtual void Hit(AActor* OtherActor) override;
 
+	void SetIsDead(bool aIsDead){ Dead = aIsDead;}
+	bool GetIsDead(){return Dead;}
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
@@ -31,9 +34,25 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UHealthComponent* Health;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UDecalComponent* DieDecal;
+
+	UPROPERTY(EditAnywhere, Category = "Niagara", meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* KnifeKilledEffect;
+
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	float MaxInvincibleRefreshTime = 0.5f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly ,Category = "Combat", meta = (AllowPrivateAccess ="true"))
+	bool  Dead = false;
+
+	class UNiagaraComponent *KnifeKilledEffectNSCompo;
+
 	bool  IsInvincible;
 	float InvincibleRefreshTime;
+
+	UPROPERTY(EditAnywhere, Category = "Effect", meta = (AllowPrivateAccess = "true"))
+	float MaxKnifeKilledEffectScale = 1.0f;
+
+	float KnifeKilledEffectScale = 0.0f;
 };

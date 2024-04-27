@@ -26,6 +26,8 @@ protected:
 
 	UFUNCTION()
 	virtual	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UStaticMeshComponent* GetItemMeshComponent(){return ItemMesh;}
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

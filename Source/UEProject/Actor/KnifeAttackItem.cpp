@@ -1,7 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "KnifeAttackItem.h"
+#include "Kismet/GameplayStatics.h"
 #include "Components/SphereComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "Hitable.h"
 #include "DrawDebugHelpers.h"
 
@@ -19,6 +22,12 @@ AKnifeAttackItem::AKnifeAttackItem(): ABaseAttackItem()
     AttackSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AttackSphere"));
     AttackSphere->SetupAttachment(RootComponent);
     AttackSphere->SetGenerateOverlapEvents(false);
+
+    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NS_ImpactEffect(TEXT("/Game/Effect/NS_BloodSplash_High.NS_BloodSplash_High"));
+    if(NS_ImpactEffect.Succeeded())
+    {
+        ImpactEffect = NS_ImpactEffect.Object;
+    }
 }
 
 void AKnifeAttackItem::BeginPlay()
@@ -27,6 +36,7 @@ void AKnifeAttackItem::BeginPlay()
     if(AttackSphere)
     {
         AttackSphere->OnComponentBeginOverlap.AddDynamic(this, &AKnifeAttackItem::OnAttackSphereOverlapBegin);
+
     }
 }
 
@@ -43,7 +53,24 @@ void AKnifeAttackItem::OnAttackSphereOverlapBegin(UPrimitiveComponent *newComp, 
 
     UE_LOG(LogTemp, Warning, TEXT("HitCast Success"));
     pHitable->Hit(this);
+
+    FVector ImpactEffectSpawnLocation = GetItemMeshComponent()->GetSocketLocation("ImpactEffectSpawnPoint");
+    FVector Pivot = GetItemMeshComponent()->GetSocketLocation("ImpactEffectSpawnPointPivot");
+    FVector Normal = Pivot - ImpactEffectSpawnLocation;
+
+    if(ImpactEffect != nullptr)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Niagara Effect Start"));
+        UNiagaraComponent *pNiagaraCompo = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),ImpactEffect, ImpactEffectSpawnLocation, Normal.Rotation());
+        if(pNiagaraCompo != nullptr)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Niagara Spawned"));
+            pNiagaraCompo->Activate();
+        }
+    }
+
 }
+
 
 void AKnifeAttackItem::Tick(float DeltaTime)
 {
