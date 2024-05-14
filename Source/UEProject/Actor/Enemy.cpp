@@ -99,6 +99,7 @@ void AEnemy::Hit(AActor *OtherActor)
             switch(pAttackItem->GetItemData().ItemType)
             {
                 case EItemType::EITEM_TYPE_DEFAULT_KNIFE:
+                case EItemType::EITEM_TYPE_DEFAULT_PISTOL:
                 {
                     if(KnifeKilledEffect != nullptr)
                     {

@@ -7,6 +7,12 @@
 #include "PistolBullet.h"
 #include "Survivor.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/SphereComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+#include "Hitable.h"
+
 
 APistolAttackItem ::APistolAttackItem() : ABaseAttackItem()
 {
@@ -17,6 +23,8 @@ APistolAttackItem ::APistolAttackItem() : ABaseAttackItem()
 	ItemData.CanbeEquiped = true;
 	ItemData.CanbeUnEquip = false;
 
+    AttackDamage = 30.0f;
+
     ProjectileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileSpawnPoint"));
     ProjectileSpawnPoint->SetupAttachment(RootComponent);
     ProjectileSpawnPoint->SetRelativeRotation(FRotator(0.0f,0.0f,90.0f));
@@ -26,6 +34,12 @@ APistolAttackItem ::APistolAttackItem() : ABaseAttackItem()
 	if (BP_Bullet.Object){
 		BulletClass = (UClass*)BP_Bullet.Object->GeneratedClass;
 	}
+
+    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NS_ImpactEffect(TEXT("/Game/Effect/NS_BloodSplash_High.NS_BloodSplash_High"));
+    if(NS_ImpactEffect.Succeeded())
+    {
+        ImpactEffect = NS_ImpactEffect.Object;
+    }
 }
 void APistolAttackItem::BeginPlay()
 {
@@ -51,33 +65,52 @@ void APistolAttackItem::Fire()
     FHitResult Hit{};
 
     UE_LOG(LogTemp, Warning, TEXT("Line Cast Start"));
+    DrawDebugLine(GetWorld(), ProjectileSpawnPoint->GetComponentLocation(), End, FColor::Red,false,1.0f);
     if(GetWorld()->LineTraceSingleByChannel(Hit,Location, End, ECollisionChannel::ECC_GameTraceChannel1,Params))
     {
+        IHitable* pHitable = Cast<IHitable>(Hit.GetActor());
+        if(pHitable == nullptr)
+            return;
 
-        UE_LOG(LogTemp, Warning, TEXT("Line Cast Success"));
-        End = Hit.Location;
-    }
-    
-    FVector ShotDirection = End - ProjectileSpawnPoint->GetComponentLocation();
-    DrawDebugLine(GetWorld(), ProjectileSpawnPoint->GetComponentLocation(), End, FColor::Red,false,1.0f);
+        UE_LOG(LogTemp, Warning, TEXT("HitCast Success"));
+        pHitable->Hit(this);
 
-    UE_LOG(LogTemp, Warning, TEXT("Bullet Class Spawn Start"));
-    if(BulletClass != nullptr)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Bullet Class Exist"));
-        FActorSpawnParameters SpawnParams;
-        SpawnParams.bDeferConstruction = true;
-        SpawnParams.Owner = GetOwner();
-        SpawnParams.Instigator = GetOwner()->GetInstigator();
-        APistolBullet* pPistolBullet = Cast<APistolBullet>(GetWorld()->SpawnActor<APistolBullet>(BulletClass));
-        if(pPistolBullet != nullptr)
+        if(ImpactEffect != nullptr)
         {
-            UE_LOG(LogTemp, Warning, TEXT("Bullet Class Spawn Success"));
-            pPistolBullet->SetActorLocation(ProjectileSpawnPoint->GetComponentLocation());
-            pPistolBullet->SetActorRotation(ProjectileSpawnPoint->GetComponentRotation());
-            pPistolBullet->InitBullet(FVector(0.0f,1.0f,0.0));
+            UE_LOG(LogTemp, Warning, TEXT("Niagara Effect Start"));
+            UNiagaraComponent *pNiagaraCompo = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),ImpactEffect, Hit.Location, Hit.Normal.Rotation());
+            if(pNiagaraCompo != nullptr)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("Niagara Spawned"));
+                pNiagaraCompo->Activate();
+            }
         }
     }
+    
+    /*
+        UE_LOG(LogTemp, Warning, TEXT("SpawnPoint : %f, %f, %f"), ProjectileSpawnPoint->GetComponentLocation().X, ProjectileSpawnPoint->GetComponentLocation().Y, ProjectileSpawnPoint->GetComponentLocation().Z);
+        FVector ShotDirection = End - ProjectileSpawnPoint->GetComponentLocation();
+        DrawDebugLine(GetWorld(), ProjectileSpawnPoint->GetComponentLocation(), End, FColor::Red,false,1.0f);
+
+        UE_LOG(LogTemp, Warning, TEXT("Bullet Class Spawn Start"));
+        if(BulletClass != nullptr)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Bullet Class Exist"));
+            FActorSpawnParameters SpawnParams;
+            SpawnParams.bDeferConstruction = true;
+            SpawnParams.Owner = GetOwner();
+            SpawnParams.Instigator = GetOwner()->GetInstigator();
+            FVector BulletLocation = ProjectileSpawnPoint->GetComponentLocation();
+            FRotator BulletRotation = (-ShotDirection).Rotation();
+            APistolBullet* pPistolBullet = Cast<APistolBullet>(GetWorld()->SpawnActor<APistolBullet>(BulletClass, BulletLocation, BulletRotation));
+            if(pPistolBullet != nullptr)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("Bullet Class Spawn Success"));
+                UE_LOG(LogTemp, Warning, TEXT("Bullet Rotation : %f, %f, %f"), pPistolBullet->GetActorRotation().Pitch, pPistolBullet->GetActorRotation().Yaw, pPistolBullet->GetActorRotation().Roll);
+                pPistolBullet->SetOwner(this);
+            }
+        }
+    */
 }
 
 AController *APistolAttackItem::GetOwnerController() const

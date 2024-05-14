@@ -31,8 +31,6 @@ void ABaseBullet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UE_LOG(LogTemp, Warning, TEXT("Bullet Velocity : %f, %f, %f"), ProjectileMovement->Velocity.X,ProjectileMovement->Velocity.Y,ProjectileMovement->Velocity.Z);
-
 	if(fLifeTime <= 0.0f)
 	{
 		Destroy();

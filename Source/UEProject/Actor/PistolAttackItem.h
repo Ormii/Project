@@ -26,10 +26,13 @@ protected:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	float MaxRange = 500.f;
+	float MaxRange = 10000.f;
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USceneComponent * ProjectileSpawnPoint;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem *ImpactEffect;
 
 	TSubclassOf<class ABaseBullet> BulletClass;
 };
