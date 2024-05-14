@@ -349,10 +349,19 @@ void ASurvivor::Attack()
 	switch(EquipedType)
 	{
 		case EEquipedType::EQUIPED_TYPE_PISTOL:
+		{
 			UE_LOG(LogTemp, Warning, TEXT("PistolAttackStart"));
 			if(IsZoomIn == false)
 				return;
 			PossessPistolAttackMontage();
+
+			APistolAttackItem *pPistolAttackItem = Cast<APistolAttackItem>(CurrentAttackItem);
+			if(pPistolAttackItem != nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Bullet Fire"));
+				pPistolAttackItem->Fire();
+			}
+		}
 			break;
 		case EEquipedType::EQUIPED_TYPE_KNIFE:
 			UE_LOG(LogTemp, Warning, TEXT("KnifeAttackStart"));
