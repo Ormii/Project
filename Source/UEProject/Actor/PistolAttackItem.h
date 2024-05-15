@@ -20,6 +20,8 @@ public:
 public:
 	virtual void Fire();
 	AController *GetOwnerController() const;
+
+	float GetMaxChargeTime(){return MaxChargeTime;}
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -27,6 +29,10 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	float MaxRange = 10000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float MaxChargeTime = 1.0f;
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USceneComponent * ProjectileSpawnPoint;

@@ -4,6 +4,8 @@
 #include "PlayerController/BasePlayerController.h"
 #include "BaseTabUMGWidget.h"
 #include "BaseExaminationWidget.h"
+#include "BaseCrossHair.h"
+#include "BaseGetItemNotify.h"
 #include "BasePlayerController.h"
 
 void ABasePlayerController::BeginPlay()
@@ -22,6 +24,23 @@ void ABasePlayerController::BeginPlay()
             ExaminationWidget->SetVisibility(ESlateVisibility::Collapsed);
         }
     }
+
+    CrossHairWidget = Cast<UBaseCrossHair>(CreateWidget(this, CrossHairClass));
+    if(CrossHairWidget)
+    {
+        CrossHairWidget->AddToViewport();
+        CrossHairWidget->SetVisibility(ESlateVisibility::Hidden);
+        CrossHairWidget->Init(0);
+    }
+
+    GetItemNotifyWidget = Cast<UBaseGetItemNotify>(CreateWidget(this, GetItemNotifyClass));
+    if(GetItemNotifyWidget)
+    {
+        GetItemNotifyWidget->AddToViewport();
+        GetItemNotifyWidget->SetVisibility(ESlateVisibility::Hidden);
+        GetItemNotifyWidget->Init(GetPawn());
+    }
+
 }
 
 void ABasePlayerController::SetPlayerEnableState(bool bPlayerEnabled)

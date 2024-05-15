@@ -42,7 +42,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	FVector GetCameraLocation(void);
-	APlayerController* GetSurvivorPlayerController(){return SurvivorPlayerController;}
+	class ABasePlayerController* GetSurvivorPlayerController(){return SurvivorPlayerController;}
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -192,6 +192,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> KnifeAttackCrouchActionMontage;
 	
-	APlayerController *SurvivorPlayerController;
+	class ABasePlayerController *SurvivorPlayerController;
 	ABaseAttackItem *CurrentAttackItem = nullptr;
 };

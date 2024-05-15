@@ -22,10 +22,26 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	class UBaseTabUMGWidget *GetTabWidget() const {return TabWidget;}
+
+	class UBaseCrossHair* GetCrossHairWidget() const {return CrossHairWidget;}
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UBaseTabUMGWidget> TabWidgetClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	class UBaseTabUMGWidget *TabWidget;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UBaseCrossHair> CrossHairClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess= "true"))
+	class UBaseCrossHair *CrossHairWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UBaseGetItemNotify> GetItemNotifyClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess= "true"))
+	class UBaseGetItemNotify *GetItemNotifyWidget;
 };

@@ -21,6 +21,7 @@
 #include "../Compo/EquipComponent.h"
 #include "BaseTabUMGWidget.h"
 #include "BaseExaminationWidget.h"
+#include "BaseCrossHair.h"
 #include "BaseItem.h"
 #include "KnifeAttackItem.h"
 #include "PistolAttackItem.h"
@@ -321,6 +322,14 @@ void ASurvivor::ZoomIn()
 	switch(EquipedType)
 	{
 		case EEquipedType::EQUIPED_TYPE_PISTOL:
+		{
+			APistolAttackItem *pPistolAtkItem = Cast<APistolAttackItem>(CurrentAttackItem);
+			if(SurvivorPlayerController && pPistolAtkItem)
+			{
+				SurvivorPlayerController->GetCrossHairWidget()->Init(pPistolAtkItem->GetMaxChargeTime());
+				SurvivorPlayerController->GetCrossHairWidget()->SetVisibility(ESlateVisibility::Visible);
+			}
+		}
 			break;
 		default:
 			return;
@@ -334,6 +343,13 @@ void ASurvivor::ZoomIn()
 void ASurvivor::ZoomOut()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ZoomOut Start"));
+
+	if(SurvivorPlayerController)
+	{
+		SurvivorPlayerController->GetCrossHairWidget()->Release();
+		SurvivorPlayerController->GetCrossHairWidget()->SetVisibility(ESlateVisibility::Hidden);
+	}
+
 	IsZoomIn = false;
 }
 
