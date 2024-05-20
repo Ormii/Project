@@ -271,3 +271,20 @@ bool UInventoryComponent::RemoveItem(int32 Index)
 	}
     return false;
 }
+
+bool UInventoryComponent::FindItem(EItemType nItemType, int32& Index, int32 & Amount)
+{
+	int32 i = 0;
+	for(i = 0; i < InventorySlots.Num(); i++)
+	{
+		auto item = InventorySlots[i];
+		if(item.Item->GetItemData().ItemType == nItemType)
+		{
+			Index = i;
+			Amount = item.Amount;
+			return true;
+		}
+	}
+
+	return false;
+}

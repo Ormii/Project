@@ -27,6 +27,8 @@ public:
 	virtual bool EquipItem() override;
 	virtual bool UnEquipItem() override;
 
+	virtual void Reload();
+
 	float GetAttackDamage(){return AttackDamage;}
 protected:
 

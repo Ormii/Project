@@ -3,6 +3,9 @@
 #include "BaseBulletItem.h"
 #include "Actor/Survivor.h"
 #include "Compo/InventoryComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "PlayerController/BasePlayerController.h"
+#include "UI/BaseGetItemNotify.h"
 
 ABaseBulletItem::ABaseBulletItem()
 {
@@ -21,23 +24,46 @@ void ABaseBulletItem::BeginPlay()
 bool ABaseBulletItem::Interact(AActor *OtherActor)
 {
     Super::Interact(OtherActor);
+
     if(Survivor)
 	{
-        int32 Remain = 0;
-		bool IsSuccess = Survivor->GetInventoryComponent()->AddItem(this, Amount, Remain);
-        if(IsSuccess)
-        {
-            if(Remain == 0)
-            {
-                Destroy();
-            }
-            else
-            {
-                SetAmount(Remain);
-            }
-        }
+		int32 Remain = 0;
+
+		ABasePlayerController *pBasePlayerController = Survivor->GetSurvivorPlayerController();
+		if(pBasePlayerController)
+		{
+			UBaseGetItemNotify *pGetItemNotifyWidget = pBasePlayerController->GetItemNotifyWidgetFunc();
+			if(pGetItemNotifyWidget)
+			{
+				if(pGetItemNotifyWidget->AddItemAlreadySeen(this) == true)
+				{
+					pGetItemNotifyWidget->SetVisibility(ESlateVisibility::Visible);
+					pGetItemNotifyWidget->InitGetItemNotify();
+					pGetItemNotifyWidget->StartGetItemNotify();
+					pBasePlayerController->SetIgnoreLookInput(true);
+					pBasePlayerController->SetShowMouseCursor(true);
+					Survivor->GetCharacterMovement()->DisableMovement();
+				}
+				else
+				{
+					bool IsSuccess = Survivor->GetInventoryComponent()->AddItem(this, Amount, Remain);
+					if(IsSuccess)
+					{
+						if(Remain == 0)
+						{
+							Destroy();
+						}
+						else
+						{
+							SetAmount(Remain);
+						}
+					}
+				}
+			}
+		}
 	}
-    return false;
+
+    return true;
 }
 
 bool ABaseBulletItem::UseItem()

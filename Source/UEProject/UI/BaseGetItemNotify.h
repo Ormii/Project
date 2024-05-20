@@ -23,6 +23,12 @@ public:
 	bool AddItemAlreadySeen(class ABaseItem* pItem);
 
 public:
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void InitGetItemNotify();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void StartGetItemNotify();
+
 	UFUNCTION(BlueprintCallable)
 	void NextActionStartEvent();
 
@@ -30,7 +36,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	class ASurvivor* SurvivorRef;
 
-	TArray<EItemType> AlreadySeenItemTypes;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	class ABaseItem* pGetItem;
+
+	TArray<EItemType> AlreadySeenItemTypes;
 };

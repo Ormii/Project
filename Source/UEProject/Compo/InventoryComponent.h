@@ -56,6 +56,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool RemoveItem(int32 Index);
 	
+	bool FindItem(EItemType nItemType, int32& Index, int32& Amount);
+
 	template <class T>
 	bool AddItem(T *Item, int32 Amount, int32& Remain);
 

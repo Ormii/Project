@@ -21,6 +21,7 @@
 #include "../Compo/EquipComponent.h"
 #include "BaseTabUMGWidget.h"
 #include "BaseExaminationWidget.h"
+#include "UI/BaseGetItemNotify.h"
 #include "BaseCrossHair.h"
 #include "BaseItem.h"
 #include "KnifeAttackItem.h"
@@ -118,6 +119,7 @@ void ASurvivor::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Completed, this, &ASurvivor::CrouchUnActivate);
 		EnhancedInputComponent->BindAction(SprintInputAction,ETriggerEvent::Started,this, &ASurvivor::SprintActivate);
 		EnhancedInputComponent->BindAction(SprintInputAction,ETriggerEvent::Completed,this,&ASurvivor::SprintUnActivate);
+		EnhancedInputComponent->BindAction(ReloadInputAction,ETriggerEvent::Completed, this, &ASurvivor::Reload);
 		EnhancedInputComponent->BindAction(TabInputAction, ETriggerEvent::Started, this, &ASurvivor::InventoryActivate);
 		EnhancedInputComponent->BindAction(ZoomInInputAction, ETriggerEvent::Started, this, &ASurvivor::ZoomIn);
 		EnhancedInputComponent->BindAction(ZoomInInputAction, ETriggerEvent::Completed, this, &ASurvivor::ZoomOut);
@@ -369,12 +371,15 @@ void ASurvivor::Attack()
 			UE_LOG(LogTemp, Warning, TEXT("PistolAttackStart"));
 			if(IsZoomIn == false)
 				return;
-			PossessPistolAttackMontage();
 
 			APistolAttackItem *pPistolAttackItem = Cast<APistolAttackItem>(CurrentAttackItem);
 			if(pPistolAttackItem != nullptr)
 			{
+				if(pPistolAttackItem->GetCurChargedBullet() <= 0)
+					return;
+
 				UE_LOG(LogTemp, Warning, TEXT("Bullet Fire"));
+				PossessPistolAttackMontage();
 				pPistolAttackItem->Fire();
 			}
 		}
@@ -390,6 +395,31 @@ void ASurvivor::Attack()
 	IsAttacking = true;
 	IsAttackReady = false;
 	UE_LOG(LogTemp, Warning, TEXT("Attack!"));
+}
+
+void ASurvivor::Reload()
+{
+	if(CurrentAttackItem == nullptr)
+		return;
+
+	switch(CurrentAttackItem->GetItemData().ItemType)
+	{
+		case EItemType::EITEM_TYPE_DEFAULT_PISTOL:
+		{
+			APistolAttackItem *pPistolAtkItem = Cast<APistolAttackItem>(CurrentAttackItem);
+			if(pPistolAtkItem == nullptr)
+				return;
+			
+			if(pPistolAtkItem->GetCurChargedBullet() < pPistolAtkItem->GetMaxChargedBullet())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Reload Action Start!!!"));
+				PossessPistolReloadMontage();
+			}
+		}
+			break;
+		default:
+			return;
+	}
 }
 
 void ASurvivor::PossessPistolAttackMontage()
@@ -415,6 +445,21 @@ void ASurvivor::PossessKnifeAttackMontage()
 	else
 	{
 		animInstance->Montage_Play(KnifeAttackActionMontage);
+	}
+}
+
+void ASurvivor::PossessPistolReloadMontage()
+{
+	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
+	if(IsCrouch)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Reload Crouch Play"));
+		animInstance->Montage_Play(PistolReloadCrouchActionMontage);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Reload Play"));
+		animInstance->Montage_Play(PistolReloadActionMontage);
 	}
 }
 
@@ -474,6 +519,9 @@ void ASurvivor::InventoryActivate()
 	if(TabWidget == nullptr)
 		return;
 
+	if(PlayerController->GetItemNotifyWidgetFunc()->GetVisibility() == ESlateVisibility::Visible)
+		return;
+
 	UseTab = !UseTab;
 
 	if(UseTab)
@@ -487,7 +535,7 @@ void ASurvivor::InventoryActivate()
             ExaminationWidget->SetVisibility(ESlateVisibility::Collapsed);
         }
 
-		GetController()->SetIgnoreLookInput(true);
+		GetSurvivorPlayerController()->SetIgnoreLookInput(true);
 		GetCharacterMovement()->DisableMovement();
 		
 		SurvivorPlayerController->bShowMouseCursor = true;
@@ -503,7 +551,7 @@ void ASurvivor::InventoryActivate()
             ExaminationWidget->SetVisibility(ESlateVisibility::Collapsed);
         }
 
-		GetController()->SetIgnoreLookInput(false);
+		GetSurvivorPlayerController()->SetIgnoreLookInput(false);
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
 		SurvivorPlayerController->bShowMouseCursor = false;

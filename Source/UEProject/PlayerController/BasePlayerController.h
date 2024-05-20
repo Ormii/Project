@@ -25,6 +25,8 @@ public:
 
 	class UBaseCrossHair* GetCrossHairWidget() const {return CrossHairWidget;}
 
+	class UBaseGetItemNotify* GetItemNotifyWidgetFunc() const {return GetItemNotifyWidget;}
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UBaseTabUMGWidget> TabWidgetClass;

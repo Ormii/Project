@@ -65,6 +65,9 @@ public:
 
 	virtual void Hit(AActor* OtherActor) override;
 
+	UFUNCTION(BlueprintCallable)
+	void InventoryActivate();
+
 private:
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
@@ -79,15 +82,14 @@ private:
 	void ZoomIn();
 	void ZoomOut();
 	void Attack();
+	void Reload();
 
 	void PossessPistolAttackMontage();
 	void PossessKnifeAttackMontage();
+	void PossessPistolReloadMontage();
 
 	class IInteractable* FindInteractItemActor();
 	void Interact();
-
-	UFUNCTION(BlueprintCallable)
-	void InventoryActivate();
 
 public:
 	UFUNCTION(BlueprintImplementableEvent)
@@ -131,6 +133,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* InteractInputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* ReloadInputAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* TabInputAction;
@@ -191,6 +196,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> KnifeAttackCrouchActionMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> PistolReloadActionMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> PistolReloadCrouchActionMontage;
 	
 	class ABasePlayerController *SurvivorPlayerController;
 	ABaseAttackItem *CurrentAttackItem = nullptr;

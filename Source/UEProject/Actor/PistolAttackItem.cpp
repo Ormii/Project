@@ -12,6 +12,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "Hitable.h"
+#include "Compo/InventoryComponent.h"
 
 
 APistolAttackItem ::APistolAttackItem() : ABaseAttackItem()
@@ -24,6 +25,8 @@ APistolAttackItem ::APistolAttackItem() : ABaseAttackItem()
 	ItemData.CanbeUnEquip = false;
 
     AttackDamage = 30.0f;
+    CurChargedBullet = 0;
+    MaxChargedBullet = 8;
 
     ProjectileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileSpawnPoint"));
     ProjectileSpawnPoint->SetupAttachment(RootComponent);
@@ -44,6 +47,56 @@ APistolAttackItem ::APistolAttackItem() : ABaseAttackItem()
 void APistolAttackItem::BeginPlay()
 {
     Super::BeginPlay();
+}
+
+void APistolAttackItem::Reload()
+{
+    Super::Reload();
+    
+    ASurvivor *pSurvivor = Cast<ASurvivor>(GetOwner());
+    if(pSurvivor)
+    {
+        UInventoryComponent* pInventoryCompo = pSurvivor->GetInventoryComponent();
+        int32 nIndex = 0, nAmount = 0;
+        if(pInventoryCompo != nullptr && pInventoryCompo->FindItem(EItemType::EITEM_TYPE_DEFAULT_BULLET, nIndex, nAmount) == true)
+        {
+            if((MaxChargedBullet - CurChargedBullet) - nAmount <= 0)
+            {
+                int32 nCount = nAmount;
+                while(nCount--)
+                {
+                    if(pInventoryCompo->UseItem(nIndex))
+                        CurChargedBullet++;
+                }
+
+            }
+            else if((MaxChargedBullet - CurChargedBullet) - nAmount == 0)
+            {
+                int32 nCount = nAmount;
+                while(nCount--)
+                {
+                    if(pInventoryCompo->UseItem(nIndex))
+                        CurChargedBullet++;
+                }
+                   
+
+                pInventoryCompo->RemoveItem(nIndex);
+            }
+            else
+            {
+                int32 nCount = nAmount;
+                while(nCount--)
+                {
+                    if(pInventoryCompo->UseItem(nIndex))
+                        CurChargedBullet++;
+                }
+                
+                pInventoryCompo->RemoveItem(nIndex);
+
+                Reload();
+            }
+        }
+    }
 }
 
 void APistolAttackItem::Fire()
@@ -87,6 +140,8 @@ void APistolAttackItem::Fire()
         }
     }
     
+    CurChargedBullet--;
+
     /*
         UE_LOG(LogTemp, Warning, TEXT("SpawnPoint : %f, %f, %f"), ProjectileSpawnPoint->GetComponentLocation().X, ProjectileSpawnPoint->GetComponentLocation().Y, ProjectileSpawnPoint->GetComponentLocation().Z);
         FVector ShotDirection = End - ProjectileSpawnPoint->GetComponentLocation();

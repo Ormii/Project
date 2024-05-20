@@ -156,13 +156,13 @@ bool ABaseItem::UseItem()
 bool ABaseItem::EquipItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Equiped : %s"), *ItemData.Name);
-    return false;
+    return true;
 }
 
 bool ABaseItem::UnEquipItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("UnEquiped : %s"), *ItemData.Name);
-    return false;
+    return true;
 }
 
 void ABaseItem::SetDetectSphereEnable(bool bEnable)

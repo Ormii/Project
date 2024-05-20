@@ -4,6 +4,9 @@
 #include "Actor/Survivor.h"
 #include "Compo/InventoryComponent.h"
 #include "Compo/EquipComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "PlayerController/BasePlayerController.h"
+#include "UI/BaseGetItemNotify.h"
 
 ABaseAttackItem::ABaseAttackItem()
 {
@@ -25,21 +28,42 @@ bool ABaseAttackItem::Interact(AActor *OtherActor)
 	if(Survivor)
 	{
 		int32 Remain = 0;
-		bool IsSuccess = Survivor->GetInventoryComponent()->AddItem(this, Amount, Remain);
-		if(IsSuccess)
+
+		ABasePlayerController *pBasePlayerController = Survivor->GetSurvivorPlayerController();
+		if(pBasePlayerController)
 		{
-			if(Remain == 0)
+			UBaseGetItemNotify *pGetItemNotifyWidget = pBasePlayerController->GetItemNotifyWidgetFunc();
+			if(pGetItemNotifyWidget)
 			{
-				Destroy();
-			}
-			else
-			{
-				SetAmount(Remain);
+				if(pGetItemNotifyWidget->AddItemAlreadySeen(this) == true)
+				{
+					pGetItemNotifyWidget->SetVisibility(ESlateVisibility::Visible);
+					pGetItemNotifyWidget->InitGetItemNotify();
+					pGetItemNotifyWidget->StartGetItemNotify();
+					pBasePlayerController->SetIgnoreLookInput(true);
+					pBasePlayerController->SetShowMouseCursor(true);
+					Survivor->GetCharacterMovement()->DisableMovement();
+				}
+				else
+				{
+					bool IsSuccess = Survivor->GetInventoryComponent()->AddItem(this, Amount, Remain);
+					if(IsSuccess)
+					{
+						if(Remain == 0)
+						{
+							Destroy();
+						}
+						else
+						{
+							SetAmount(Remain);
+						}
+					}
+				}
 			}
 		}
 	}
 
-    return false;
+    return true;
 }
 
 bool ABaseAttackItem::EquipItem()
@@ -94,4 +118,9 @@ bool ABaseAttackItem::UnEquipItem()
 	}
 
 	return false;
+}
+
+void ABaseAttackItem::Reload()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Reload start"));
 }
