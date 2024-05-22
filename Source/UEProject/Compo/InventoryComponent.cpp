@@ -278,6 +278,9 @@ bool UInventoryComponent::FindItem(EItemType nItemType, int32& Index, int32 & Am
 	for(i = 0; i < InventorySlots.Num(); i++)
 	{
 		auto item = InventorySlots[i];
+		if(item.Item == nullptr)
+			continue;
+
 		if(item.Item->GetItemData().ItemType == nItemType)
 		{
 			Index = i;

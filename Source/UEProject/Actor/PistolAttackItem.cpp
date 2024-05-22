@@ -60,39 +60,46 @@ void APistolAttackItem::Reload()
         int32 nIndex = 0, nAmount = 0;
         if(pInventoryCompo != nullptr && pInventoryCompo->FindItem(EItemType::EITEM_TYPE_DEFAULT_BULLET, nIndex, nAmount) == true)
         {
-            if((MaxChargedBullet - CurChargedBullet) - nAmount <= 0)
+            if((MaxChargedBullet - CurChargedBullet) - nAmount < 0)
             {
-                int32 nCount = nAmount;
-                while(nCount--)
+                int32 nCount = (MaxChargedBullet - CurChargedBullet);
+                while(nCount > 0)
                 {
-                    if(pInventoryCompo->UseItem(nIndex))
+                    if(pInventoryCompo->RemoveItem(nIndex))
                         CurChargedBullet++;
+
+                    nCount--;
                 }
+
+                pInventoryCompo->UpdateInventorySlots(nIndex);
 
             }
             else if((MaxChargedBullet - CurChargedBullet) - nAmount == 0)
             {
                 int32 nCount = nAmount;
-                while(nCount--)
+                while(nCount > 0)
                 {
-                    if(pInventoryCompo->UseItem(nIndex))
+                    if(pInventoryCompo->RemoveItem(nIndex))
                         CurChargedBullet++;
+                    
+                    nCount--;
                 }
-                   
 
-                pInventoryCompo->RemoveItem(nIndex);
+                pInventoryCompo->UpdateInventorySlots(nIndex);
             }
             else
             {
                 int32 nCount = nAmount;
-                while(nCount--)
+                while(nCount > 0)
                 {
-                    if(pInventoryCompo->UseItem(nIndex))
+                    if(pInventoryCompo->RemoveItem(nIndex))
                         CurChargedBullet++;
+
+                    nCount--;
                 }
                 
-                pInventoryCompo->RemoveItem(nIndex);
-
+                pInventoryCompo->UpdateInventorySlots(nIndex);
+                
                 Reload();
             }
         }
@@ -116,6 +123,8 @@ void APistolAttackItem::Fire()
 	Params.AddIgnoredActor(this);
 	Params.AddIgnoredActor(GetOwner());
     FHitResult Hit{};
+     
+    CurChargedBullet--;
 
     UE_LOG(LogTemp, Warning, TEXT("Line Cast Start"));
     DrawDebugLine(GetWorld(), ProjectileSpawnPoint->GetComponentLocation(), End, FColor::Red,false,1.0f);
@@ -139,8 +148,6 @@ void APistolAttackItem::Fire()
             }
         }
     }
-    
-    CurChargedBullet--;
 
     /*
         UE_LOG(LogTemp, Warning, TEXT("SpawnPoint : %f, %f, %f"), ProjectileSpawnPoint->GetComponentLocation().X, ProjectileSpawnPoint->GetComponentLocation().Y, ProjectileSpawnPoint->GetComponentLocation().Z);
