@@ -118,7 +118,7 @@ void ABaseItem::Tick(float DeltaTime)
 				Params.AddIgnoredActor(Survivor->GetCurrentAttackItem());
 			}
 		}
-		DrawDebugLine(GetWorld(), ActorLocation, ActorLocation + (CameraLocation - ActorLocation),FColor::Red,false, 1.0f);
+		//DrawDebugLine(GetWorld(), ActorLocation, ActorLocation + (CameraLocation - ActorLocation),FColor::Red,false, 1.0f);
 		if(GetWorld()->LineTraceSingleByChannel(HitResult, ActorLocation, CameraLocation, ECollisionChannel::ECC_Visibility,Params) == false)
 		{
 			InteractWidget->SetVisibility(true);

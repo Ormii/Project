@@ -528,6 +528,8 @@ void ASurvivor::InventoryActivate()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Activate :%d"), UseTab);	
 		TabWidget->SetVisibility(ESlateVisibility::Visible);
+		TabWidget->ResetItemBigImageRef();
+		TabWidget->ResetItemTextRef();
 
 		UBaseExaminationWidget *ExaminationWidget = TabWidget->GetExaminationWidget();
         if(ExaminationWidget)

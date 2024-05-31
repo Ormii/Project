@@ -236,6 +236,8 @@ bool UInventoryComponent::DropItem(int32 Index)
 			if(InventoryWidget == nullptr)
 				return false;
 
+			TabWidget->ResetItemBigImageRef();
+			TabWidget->ResetItemTextRef();
 
 			InventoryWidget->CloseDropDownMenu();
 			return true;

@@ -97,14 +97,23 @@ inline bool UInventoryComponent::AddItem(T *Item, int32 Amount, int32& Remain)
 		if(CheckForFreeSlot(Item, Index) == true)
 		{
 			ABaseItem *BaseItem = dynamic_cast<ABaseItem*>(Item);
-			InventorySlots[Index].Amount += Amount;
-			UpdateInventorySlots(Index);
-			Amount = (InventorySlots[Index].Amount - MaxStackAmount);
 
-			if(InventorySlots[Index].Amount > MaxStackAmount)
+			int32 RemainAmount = Amount - InventorySlots[Index].Amount;
+
+			if(Amount + InventorySlots[Index].Amount > MaxStackAmount)
+			{
+				Amount -= (MaxStackAmount - InventorySlots[Index].Amount);
 				InventorySlots[Index].Amount = MaxStackAmount;
+			}
+			else
+			{
+				InventorySlots[Index].Amount += Amount;
+				Amount = 0;
+			}
 
 			InventorySlots[Index].Item->SetAmount(InventorySlots[Index].Amount);
+
+			UpdateInventorySlots(Index);
 
 			if(Amount < 0)
 				Amount = 0;

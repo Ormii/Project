@@ -127,7 +127,7 @@ void APistolAttackItem::Fire()
     CurChargedBullet--;
 
     UE_LOG(LogTemp, Warning, TEXT("Line Cast Start"));
-    DrawDebugLine(GetWorld(), ProjectileSpawnPoint->GetComponentLocation(), End, FColor::Red,false,1.0f);
+    //DrawDebugLine(GetWorld(), ProjectileSpawnPoint->GetComponentLocation(), End, FColor::Red,false,1.0f);
     if(GetWorld()->LineTraceSingleByChannel(Hit,Location, End, ECollisionChannel::ECC_GameTraceChannel1,Params))
     {
         IHitable* pHitable = Cast<IHitable>(Hit.GetActor());

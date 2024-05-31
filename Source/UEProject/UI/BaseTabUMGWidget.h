@@ -22,6 +22,9 @@ public:
 	UBaseEquipWidget *GetEquipWidget(){return EquipWidgetRef;}
 	UBaseExaminationWidget *GetExaminationWidget(){return ExaminationWidgetRef;}
 
+	bool ResetItemBigImageRef();
+	bool ResetItemTextRef();
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	UBaseInventoryWidget* InventoryWidgetRef;
